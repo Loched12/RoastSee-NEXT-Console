@@ -67,7 +67,7 @@ Web Bluetooth 与 Web Serial 都能用（本项目在 Chrome 154 上实测：`na
 ### 3. 静态托管（像正常网站一样）
 
 ```bash
-git clone https://github.com/LEBREW/RoastSee-NEXT-Console.git
+git clone https://github.com/Loched12/RoastSee-NEXT-Console.git
 ```
 
 整个仓库都是静态文件，丢到任意静态托管即可：GitHub Pages、对象存储（OSS / COS）、自有网站都行。
@@ -75,8 +75,8 @@ git clone https://github.com/LEBREW/RoastSee-NEXT-Console.git
 GitHub Pages 开启方式：仓库 **Settings → Pages → Source** 选 `main` 分支 `/ (root)`，随后访问：
 
 ```text
-https://<组织或用户名>.github.io/RoastSee-NEXT-Console/
-https://<组织或用户名>.github.io/RoastSee-NEXT-Console/?lang=en
+https://loched12.github.io/RoastSee-NEXT-Console/
+https://loched12.github.io/RoastSee-NEXT-Console/?lang=en
 ```
 
 > 提示：`github.io` 在国内访问不稳定。对外正式使用建议放自有域名或国内对象存储。**仓库需为公开（public），Pages 才能免费使用。**
