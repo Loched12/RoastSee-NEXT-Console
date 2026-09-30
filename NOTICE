@@ -4,7 +4,7 @@ Copyright 2026 LeBrew
 This product includes software developed at LeBrew (https://lebrewtech.com).
 
 The LeBrew wordmark in assets/ (lebrew-wordmark.png, lebrew-wordmark-dark.png) is a
-LeBrew trademark. It is not covered by the Apache-2.0 grant.
+LeBrew trademark. It is not covered by the MIT code grant.
 
 Curve presentation is inspired by Artisan (https://artisan-scope.org/), the open-source
 roast-logging software by Marko Luther and contributors, released under AGPL-3.0.

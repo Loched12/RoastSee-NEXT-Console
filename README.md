@@ -19,7 +19,7 @@ No download, no install, no build - it opens straight from the website.
   <img alt="Web Serial" src="https://img.shields.io/badge/Web%20Serial-supported-6b45dd?style=flat-square">
   <img alt="single file" src="https://img.shields.io/badge/single--file-HTML-292a3a?style=flat-square">
   <img alt="no build" src="https://img.shields.io/badge/build-none-success?style=flat-square">
-  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square">
+<img alt="license" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
 </p>
 
 <img src="assets/next-device.webp" width="100%" alt="RoastSee NEXT roast analyser" />
@@ -126,8 +126,8 @@ Website: [lebrewtech.com](https://lebrewtech.com) · Product page: [RoastSee NEX
 ├─ assets/                    product photos, brand wordmark
 ├─ screenshots/               UI screenshots
 ├─ tests/                     offline Node regression tests
-├─ LICENSE                    Apache-2.0
-├─ NOTICE                     copyright notice
+├─ LICENSE                    MIT
+├─ NOTICE                     attribution notes
 ├─ README.md                  this file (English, default)
 └─ README.zh-CN.md            Chinese readme
 ```
@@ -161,18 +161,18 @@ and the interaction only; **no Artisan code is used in this project**, so the tw
 
 Maintained by **LeBrew** - [lebrewtech.com](https://lebrewtech.com) and the
 [RoastSee NEXT product page](https://lebrewtech.com/products/roastsee-next-3). The LeBrew wordmark above is a LeBrew
-trademark and is not covered by the Apache-2.0 grant.
+trademark and is not covered by the MIT code grant.
 
 The page loads the Inter and Outfit web fonts from Google Fonts (SIL Open Font License 1.1). If they cannot be
 reached, it falls back to system fonts and everything keeps working.
 
 ## License
 
-The code is released under the **Apache License 2.0**; see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+The code is released under the **MIT License**; see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
-Compared with MIT, Apache-2.0 adds an **express patent grant** and requires redistributors to keep the copyright and
-license notices and to state changes to modified files. It **does not grant trademark rights**, so the LeBrew name and
-marks may not be used to endorse or promote other products.
+MIT is short and permissive: keep the copyright notice and you may use, modify and redistribute this code, including
+commercially. It grants **no patent licence and no trademark rights**, so the LeBrew name and marks may not be used to
+endorse or promote other products.
 
 Product photos and brand marks in `assets/` and `screenshots/` are copyright **LeBrew** and are not covered by the
-Apache-2.0 code grant; they may only be used to describe this project.
+MIT code grant; they may only be used to describe this project.
