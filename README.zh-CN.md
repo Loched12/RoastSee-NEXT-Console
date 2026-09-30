@@ -9,7 +9,7 @@
 
 **在浏览器里连上 RoastSee NEXT：实时烘焙曲线、节点标注、数据导出。单文件、零依赖、无需安装。**
 
-[![打开在线上位机](https://img.shields.io/badge/%E6%89%93%E5%BC%80%E5%9C%A8%E7%BA%BF%E4%B8%8A%E4%BD%8D%E6%9C%BA-loched12.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://loched12.github.io/RoastSee-NEXT-Console/)
+[![打开在线上位机](https://img.shields.io/badge/%E6%89%93%E5%BC%80%E5%9C%A8%E7%BA%BF%E4%B8%8A%E4%BD%8D%E6%9C%BA-lebrew--tech.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://lebrew-tech.github.io/RoastSee-NEXT-Console/)
 
 不用下载、不用安装，点开就能连设备。
 
@@ -76,7 +76,7 @@ Windows 双击 `START_HTML_SERVER.cmd`，macOS 双击 `START_HTML_SERVER.command
 ### 3. 静态托管（像正常网站一样）
 
 ```bash
-git clone https://github.com/Loched12/RoastSee-NEXT-Console.git
+git clone https://github.com/lebrew-tech/RoastSee-NEXT-Console.git
 ```
 
 整个仓库都是静态文件，丢到任意静态托管即可：GitHub Pages、对象存储（OSS / COS）、自有网站都行。
@@ -84,8 +84,8 @@ git clone https://github.com/Loched12/RoastSee-NEXT-Console.git
 GitHub Pages 开启方式：仓库 **Settings → Pages → Source** 选 `main` 分支 `/ (root)`，随后访问：
 
 ```text
-https://loched12.github.io/RoastSee-NEXT-Console/
-https://loched12.github.io/RoastSee-NEXT-Console/?lang=en
+https://lebrew-tech.github.io/RoastSee-NEXT-Console/
+https://lebrew-tech.github.io/RoastSee-NEXT-Console/?lang=en
 ```
 
 > 提示：`github.io` 在国内访问不稳定。对外正式使用建议放自有域名或国内对象存储。**仓库需为公开（public），Pages 才能免费使用。**

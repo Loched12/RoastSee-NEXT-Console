@@ -9,7 +9,7 @@
 
 **Connect to RoastSee NEXT in your browser: live roast curves, event markers, data export. Single file, zero dependencies, nothing to install.**
 
-[![Open the console](https://img.shields.io/badge/Open%20the%20console-loched12.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://loched12.github.io/RoastSee-NEXT-Console/?lang=en)
+[![Open the console](https://img.shields.io/badge/Open%20the%20console-lebrew--tech.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://lebrew-tech.github.io/RoastSee-NEXT-Console/?lang=en)
 
 No download, no install, no build - it opens straight from the website.
 
@@ -77,7 +77,7 @@ walks forward). The `_EN` variant opens straight into the English UI. To stop it
 ### 3. Static hosting (like a normal website)
 
 ```bash
-git clone https://github.com/Loched12/RoastSee-NEXT-Console.git
+git clone https://github.com/lebrew-tech/RoastSee-NEXT-Console.git
 ```
 
 The whole repo is static files, so any static host works: GitHub Pages, object storage (OSS / COS), your own site.
@@ -85,8 +85,8 @@ The whole repo is static files, so any static host works: GitHub Pages, object s
 To turn on GitHub Pages: **Settings → Pages → Source**, pick branch `main` and `/ (root)`, then open:
 
 ```text
-https://loched12.github.io/RoastSee-NEXT-Console/
-https://loched12.github.io/RoastSee-NEXT-Console/?lang=en
+https://lebrew-tech.github.io/RoastSee-NEXT-Console/
+https://lebrew-tech.github.io/RoastSee-NEXT-Console/?lang=en
 ```
 
 > Note: `github.io` is unreliable from mainland China. For production use, prefer your own domain or domestic object storage. **The repo must be public for free Pages.**
