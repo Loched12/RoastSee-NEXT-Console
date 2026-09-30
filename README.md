@@ -10,7 +10,7 @@
   <img alt="Web Serial" src="https://img.shields.io/badge/Web%20Serial-supported-6b45dd?style=flat-square">
   <img alt="single file" src="https://img.shields.io/badge/single--file-HTML-292a3a?style=flat-square">
   <img alt="no build" src="https://img.shields.io/badge/build-none-success?style=flat-square">
-  <img alt="license" src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+  <img alt="license" src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square">
 </p>
 
 <img src="assets/next-device.webp" width="100%" alt="RoastSee NEXT 烘焙分析仪" />
@@ -110,7 +110,8 @@ RoastSee NEXT 是 LeBrew 的烘焙分析仪，负责采集 Agtron 与音频数�
 ├─ assets/                    设备图片
 ├─ screenshots/               界面截图
 ├─ tests/                     Node 离线回归测试
-├─ LICENSE                    MIT
+├─ LICENSE                    Apache-2.0
+├─ NOTICE                     版权归属声明
 └─ README.md
 ```
 
@@ -136,10 +137,13 @@ node tests/contrast_scan.mjs       # 配色对比度是否符合 WCAG AA（26 �
 
 ## 许可
 
-代码以 **MIT** 许可开源，见 [LICENSE](LICENSE)。
+代码以 **Apache License 2.0** 开源，见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)。
 
-`assets/` 与 `screenshots/` 中的产品图片、品牌标识版权归 **LeBrew** 所有，不在 MIT 许可范围内，
-仅可用于说明本项目。
+与 MIT 相比，Apache-2.0 多了一条**明确的专利授权**，并要求再分发时保留版权与许可声明、
+标注改动过的文件；它**不授予商标权**，所以 LeBrew 的名称和标识不能拿来做背书或推广他人产品。
+
+`assets/` 与 `screenshots/` 中的产品图片、品牌标识版权归 **LeBrew** 所有，
+不适用 Apache-2.0 的代码授权，仅可用于说明本项目。
 
 ---
 
@@ -158,4 +162,6 @@ as a secure context), run `START_HTML_SERVER.cmd` for a local server, or host th
 
 Requires desktop Chrome or Edge. Run the offline tests with `node tests/*.mjs`.
 
-Code is MIT licensed. Product photos and brand marks are (c) LeBrew.
+Licensed under the Apache License 2.0 (see [LICENSE](LICENSE) and [NOTICE](NOTICE)):
+express patent grant included, trademark rights not granted.
+Product photos and brand marks are (c) LeBrew.
