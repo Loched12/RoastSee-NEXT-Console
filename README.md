@@ -66,9 +66,9 @@ Web Bluetooth 与 Web Serial 都能用（本项目在 Chrome 154 上实测：`na
 
 ### 2. 本地服务器（推荐日常使用）
 
-双击 `START_HTML_SERVER.cmd`：自动查找本机 Python，在 `http://127.0.0.1:8000` 起本地服务器并打开页面
-（端口被占用会自动往后找）。`START_HTML_SERVER_EN.cmd` 直接以英文界面启动。
-关闭任务栏里最小化的 `RoastSee NEXT Server` 窗口即停止。
+Windows 双击 `START_HTML_SERVER.cmd`，macOS 双击 `START_HTML_SERVER.command`（首次可能要右键 → 打开）：
+自动查找本机 Python，在 `http://127.0.0.1:8000` 起本地服务器并打开页面（端口被占用会自动往后找）。
+文件名带 `_EN` 的那个直接以英文界面启动。停止方式：Windows 关掉任务栏里最小化的 `RoastSee NEXT Server` 窗口，macOS 关掉终端窗口。
 
 ### 3. 静态托管（像正常网站一样）
 
@@ -89,10 +89,14 @@ https://loched12.github.io/RoastSee-NEXT-Console/?lang=en
 
 ## 浏览器要求
 
-- 桌面版 **Chrome / Edge**。Web Bluetooth 与 Web Serial 目前只有 Chromium 系实现，Firefox / Safari 不支持。
+- 桌面版 **Chrome / Edge**，Windows 和 macOS 都一样。Safari 两个 API 都不支持；Firefox 有 Web Serial（151 起）但没有 Web Bluetooth。
 - 页面必须处于安全上下文：`file://`、`http://127.0.0.1`、`http://localhost`、`https://` 都可以；
   普通 `http://` 的局域网地址（如 `http://192.168.x.x`）不行。
 - 首次连接需要在浏览器弹窗里手动授权蓝牙设备或串口。
+
+> **macOS 串口注意**：设备用的是 **CH340** 芯片，macOS 不自带它的驱动。串口列表里看不到设备时，
+> 去 WCH 官网装 `CH34xVCPDriver`（装完在“启动台”打开该 App 点一次 Install，再重新插拔设备）。
+> **走蓝牙则不需要任何驱动。**
 
 ## 硬件
 
@@ -112,6 +116,8 @@ RoastSee NEXT 是 LeBrew 的烘焙分析仪，负责采集 Agtron 与音频数�
 ├─ index.html                 静态托管入口，只做跳转并保留 ?lang=en
 ├─ START_HTML_SERVER.cmd      一键本地服务器（Windows）
 ├─ START_HTML_SERVER_EN.cmd   同上，直接进英文界面
+├─ START_HTML_SERVER.command     一键本地服务器（macOS）
+├─ START_HTML_SERVER_EN.command  macOS 版，直接进英文界面
 ├─ 使用指南.md                 面向使用者的完整说明
 ├─ assets/                    设备图片
 ├─ screenshots/               界面截图

@@ -66,9 +66,10 @@ returns `true` and `navigator.serial.getPorts()` returns an array).
 
 ### 2. Local server (recommended for daily use)
 
-Double-click `START_HTML_SERVER.cmd`. It finds a local Python, serves `http://127.0.0.1:8000` and opens the page
-(if the port is taken it walks forward). `START_HTML_SERVER_EN.cmd` opens straight into the English UI.
-Close the minimised `RoastSee NEXT Server` window in the taskbar to stop it.
+Double-click `START_HTML_SERVER.cmd` on Windows, or `START_HTML_SERVER.command` on macOS (right-click → Open the
+first time). It finds a local Python, serves `http://127.0.0.1:8000` and opens the page (if the port is taken it
+walks forward). The `_EN` variant opens straight into the English UI. To stop it, close the minimised
+`RoastSee NEXT Server` window (Windows) or the Terminal window (macOS).
 
 ### 3. Static hosting (like a normal website)
 
@@ -89,10 +90,14 @@ https://loched12.github.io/RoastSee-NEXT-Console/?lang=en
 
 ## Browser requirements
 
-- Desktop **Chrome / Edge**. Web Bluetooth and Web Serial are Chromium-only today; Firefox and Safari do not implement them.
+- Desktop **Chrome / Edge** on Windows or macOS. Safari implements neither API; Firefox has Web Serial (151+) but no Web Bluetooth.
 - The page must run in a secure context: `file://`, `http://127.0.0.1`, `http://localhost` and `https://` all work;
   a plain-`http://` LAN address (e.g. `http://192.168.x.x`) does not.
 - The first connection needs a manual grant in the browser's device or port picker.
+
+> **macOS serial note**: the device uses a **CH340** USB-to-serial chip, which macOS does not drive out of the box.
+> If the port never shows up, install WCH's `CH34xVCPDriver` (then open the `CH34xVCPDriver` app from Launchpad,
+> click Install once, and replug the device). **Bluetooth needs no driver at all.**
 
 ## Hardware
 
@@ -112,6 +117,8 @@ Website: [lebrewtech.com](https://lebrewtech.com) · Product page: [RoastSee NEX
 ├─ index.html                 static-host entry, redirects and keeps ?lang=en
 ├─ START_HTML_SERVER.cmd      one-click local server (Windows)
 ├─ START_HTML_SERVER_EN.cmd   same, straight into the English UI
+├─ START_HTML_SERVER.command     one-click local server (macOS)
+├─ START_HTML_SERVER_EN.command  same for macOS, straight into the English UI
 ├─ 使用指南.md                 full guide (Chinese)
 ├─ assets/                    product photos
 ├─ screenshots/               UI screenshots
