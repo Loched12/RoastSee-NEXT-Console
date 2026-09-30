@@ -6,6 +6,10 @@
 
 **Connect to RoastSee NEXT in your browser: live roast curves, event markers, data export. Single file, zero dependencies, nothing to install.**
 
+[![Open the console](https://img.shields.io/badge/Open%20the%20console-loched12.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://loched12.github.io/RoastSee-NEXT-Console/?lang=en)
+
+No download, no install, no build - it opens straight from the website.
+
 <p>
   <img alt="Chrome / Edge" src="https://img.shields.io/badge/Chrome%20%2F%20Edge-required-4285F4?style=flat-square&logo=googlechrome&logoColor=white">
   <img alt="Web Bluetooth" src="https://img.shields.io/badge/Web%20Bluetooth-supported-6b45dd?style=flat-square">

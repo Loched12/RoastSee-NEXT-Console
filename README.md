@@ -6,6 +6,10 @@
 
 **在浏览器里连上 RoastSee NEXT：实时烘焙曲线、节点标注、数据导出。单文件、零依赖、无需安装。**
 
+[![打开在线上位机](https://img.shields.io/badge/%E6%89%93%E5%BC%80%E5%9C%A8%E7%BA%BF%E4%B8%8A%E4%BD%8D%E6%9C%BA-loched12.github.io-6b45dd?style=for-the-badge&logo=googlechrome&logoColor=white)](https://loched12.github.io/RoastSee-NEXT-Console/)
+
+不用下载、不用安装，点开就能连设备。
+
 <p>
   <img alt="Chrome / Edge" src="https://img.shields.io/badge/Chrome%20%2F%20Edge-required-4285F4?style=flat-square&logo=googlechrome&logoColor=white">
   <img alt="Web Bluetooth" src="https://img.shields.io/badge/Web%20Bluetooth-supported-6b45dd?style=flat-square">
