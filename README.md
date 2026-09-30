@@ -1,6 +1,4 @@
-<a id="zh"></a>
-
-[简体中文](#zh) | [English](#english)
+[简体中文](README.md) | [English](README.en.md)
 
 <sub>LEBREW · Coffee Analysis Instruments</sub>
 
@@ -116,7 +114,8 @@ RoastSee NEXT 是 LeBrew 的烘焙分析仪，负责采集 Agtron 与音频数�
 ├─ tests/                     Node 离线回归测试
 ├─ LICENSE                    Apache-2.0
 ├─ NOTICE                     版权归属声明
-└─ README.md
+├─ README.md                  中文说明（本文件）
+└─ README.en.md               英文说明
 ```
 
 ## 开发与测试
@@ -148,26 +147,3 @@ node tests/contrast_scan.mjs       # 配色对比度是否符合 WCAG AA（26 �
 
 `assets/` 与 `screenshots/` 中的产品图片、品牌标识版权归 **LeBrew** 所有，
 不适用 Apache-2.0 的代码授权，仅可用于说明本项目。
-
----
-
-## English
-
-[简体中文](#zh) | [English](#english)
-
-**A single-file, zero-dependency web console for RoastSee NEXT.**
-
-Open it in Chrome or Edge, connect over Web Bluetooth or Web Serial, and watch the roasting curves
-(Agtron, stable Agtron, Agtron ROR, audio level) with Yellow / First Crack / Second Crack / Drop markers.
-Zoom with the wheel, pan by dragging, double-click to reset, hover to read values, and export the roast
-as PNG / JPEG / WebP or CSV / TSV / JSON. The UI switches between Chinese and English.
-
-Open it three ways, all equivalent: double-click `next_upper_computer.html` (modern Chrome treats `file://`
-as a secure context), run `START_HTML_SERVER.cmd` for a local server, or host the folder on any static host
-(GitHub Pages, object storage, your own site).
-
-Requires desktop Chrome or Edge. Run the offline tests with `node tests/*.mjs`.
-
-Licensed under the Apache License 2.0 (see [LICENSE](LICENSE) and [NOTICE](NOTICE)):
-express patent grant included, trademark rights not granted.
-Product photos and brand marks are (c) LeBrew.
