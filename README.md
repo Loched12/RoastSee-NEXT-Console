@@ -1,3 +1,7 @@
+<a id="zh"></a>
+
+[简体中文](#zh) | [English](#english)
+
 <sub>LEBREW · Coffee Analysis Instruments</sub>
 
 <h1>RoastSee NEXT 网页上位机</h1>
@@ -148,6 +152,8 @@ node tests/contrast_scan.mjs       # 配色对比度是否符合 WCAG AA（26 �
 ---
 
 ## English
+
+[简体中文](#zh) | [English](#english)
 
 **A single-file, zero-dependency web console for RoastSee NEXT.**
 
