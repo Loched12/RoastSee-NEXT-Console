@@ -1,6 +1,9 @@
 [简体中文](README.zh-CN.md) | [English](README.md)
 
-<sub>LEBREW · Coffee Analysis Instruments</sub>
+<img src="assets/lebrew-wordmark.png#gh-light-mode-only" alt="LeBrew" height="26" />
+<img src="assets/lebrew-wordmark-dark.png#gh-dark-mode-only" alt="LeBrew" height="26" />
+
+<sub>Coffee Analysis Instruments</sub>
 
 <h1>RoastSee NEXT Web Console</h1>
 
@@ -120,7 +123,7 @@ Website: [lebrewtech.com](https://lebrewtech.com) · Product page: [RoastSee NEX
 ├─ START_HTML_SERVER.command     one-click local server (macOS)
 ├─ START_HTML_SERVER_EN.command  same for macOS, straight into the English UI
 ├─ 使用指南.md                 full guide (Chinese)
-├─ assets/                    product photos
+├─ assets/                    product photos, brand wordmark
 ├─ screenshots/               UI screenshots
 ├─ tests/                     offline Node regression tests
 ├─ LICENSE                    Apache-2.0
@@ -148,6 +151,20 @@ Everything needed to talk to the NEXT is in this repo; skip this if you only wan
 - BLE service UUID `000000BB-0000-1000-8000-00805F9B34FB`, characteristic UUID `0000BB01-0000-1000-8000-00805F9B34FB` (Notify).
 - The `NEXT:` text command table: page control, start / stop roast, Agtron measurement, history read, yellow-point threshold, and more.
 - The UART0 live frame layout (header `AA55`) and its parsing logic.
+
+## Acknowledgements
+
+Curve presentation in this console takes its cues from **Artisan**, the open-source roast-logging software by
+**Marko Luther** and contributors - [artisan-scope.org](https://artisan-scope.org/) and
+[artisan-roaster-scope/artisan](https://github.com/artisan-roaster-scope/artisan) (AGPL-3.0). It inspired the layout
+and the interaction only; **no Artisan code is used in this project**, so the two codebases stay licence-independent.
+
+Maintained by **LeBrew** - [lebrewtech.com](https://lebrewtech.com) and the
+[RoastSee NEXT product page](https://lebrewtech.com/products/roastsee-next-3). The LeBrew wordmark above is a LeBrew
+trademark and is not covered by the Apache-2.0 grant.
+
+The page loads the Inter and Outfit web fonts from Google Fonts (SIL Open Font License 1.1). If they cannot be
+reached, it falls back to system fonts and everything keeps working.
 
 ## License
 

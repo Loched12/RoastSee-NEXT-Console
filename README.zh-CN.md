@@ -1,6 +1,9 @@
 [简体中文](README.zh-CN.md) | [English](README.md)
 
-<sub>LEBREW · Coffee Analysis Instruments</sub>
+<img src="assets/lebrew-wordmark.png#gh-light-mode-only" alt="LeBrew" height="26" />
+<img src="assets/lebrew-wordmark-dark.png#gh-dark-mode-only" alt="LeBrew" height="26" />
+
+<sub>Coffee Analysis Instruments</sub>
 
 <h1>RoastSee NEXT 网页上位机</h1>
 
@@ -119,7 +122,7 @@ RoastSee NEXT 是 LeBrew 的烘焙分析仪，负责采集 Agtron 与音频数�
 ├─ START_HTML_SERVER.command     一键本地服务器（macOS）
 ├─ START_HTML_SERVER_EN.command  macOS 版，直接进英文界面
 ├─ 使用指南.md                 面向使用者的完整说明
-├─ assets/                    设备图片
+├─ assets/                    设备图片、品牌字标
 ├─ screenshots/               界面截图
 ├─ tests/                     Node 离线回归测试
 ├─ LICENSE                    Apache-2.0
@@ -147,6 +150,18 @@ node tests/contrast_scan.mjs       # 配色对比度是否符合 WCAG AA（26 �
 - BLE 服务 UUID `000000BB-0000-1000-8000-00805F9B34FB`，特征 UUID `0000BB01-0000-1000-8000-00805F9B34FB`（Notify）。
 - `NEXT:` 文本命令表：页面控制、开始 / 停止烘焙、Agtron 测量、历史读取、黄点阈值等。
 - 串口实时帧（`AA55` 帧头）的字段布局与解析逻辑。
+
+## 致谢
+
+本上位机的曲线呈现方式参考了 **Artisan** —— 由 **Marko Luther** 及其贡献者开发的开源烘焙记录软件
+（[artisan-scope.org](https://artisan-scope.org/) · [artisan-roaster-scope/artisan](https://github.com/artisan-roaster-scope/artisan)，AGPL-3.0）。
+我们只借鉴了它的布局与交互思路，**未使用 Artisan 的任何代码**，本项目与它保持许可独立。
+
+本项目由 **LeBrew** 维护 —— [lebrewtech.com](https://lebrewtech.com) · [RoastSee NEXT 产品页](https://lebrewtech.com/products/roastsee-next-3)。
+上方 LeBrew 字标为 LeBrew 商标，不适用 Apache-2.0 的授权。
+
+页面会从 Google Fonts 加载 Inter 与 Outfit 两款字体（SIL Open Font License 1.1）；
+若无法访问则回落到系统字体，功能不受影响。
 
 ## 许可
 
