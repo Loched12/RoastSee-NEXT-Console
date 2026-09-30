@@ -1,0 +1,4794 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RoastSee NEXT 上位机</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8f9fa;
+      --panel: #ffffff;
+      --panel-2: #f6f6f7;
+      --text: #292a3a;
+      --muted: #6b6b6c;
+      --line: #e6e6e6;
+      --blue: #4457ff;
+      --green: #00b479;
+      --red: #f71f1f;
+      --amber: #d97706;
+      --purple: #6b45dd;
+      --cyan: #0dcaf0;
+      --shadow: 0 12px 30px rgba(41, 42, 58, 0.08);
+      --radius: 12px;
+      /* 文字专用色：图表描边继续用上面那组亮色，文字要在白底上过 WCAG AA 4.5:1 */
+      --green-text: #00794f;
+      --amber-text: #92580a;
+      --red-text: #c40f0f;
+      --cyan-text: #0b7a90;
+      --focus: #6b45dd;
+      font-family: Outfit, Inter, "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1680px, calc(100vw - 32px));
+      margin: 24px auto 48px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+      background: #292a3a;
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+      font-family: Outfit, Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #fff;
+    }
+
+    .brand-kicker {
+      margin: 0 0 8px;
+      color: #cbc4df;
+      font-family: Outfit, Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #d4d4d8;
+      line-height: 1.55;
+      max-width: 880px;
+    }
+
+    header .ghost {
+      background: transparent;
+      border-color: #545561;
+      color: #fff;
+    }
+
+    header .ghost:hover:not(:disabled) {
+      border-color: #fff;
+      background: #343544;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 330px minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 0;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 17px;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip strong {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .chip .chip-value {
+      font-weight: 650;
+    }
+
+    .chip.ok strong {
+      color: var(--green-text);
+    }
+
+    .chip.ok .chip-value {
+      color: var(--green-text);
+    }
+
+    .chip.warn strong {
+      color: var(--amber-text);
+    }
+
+    .chip.warn .chip-value {
+      color: var(--amber-text);
+    }
+
+    .chip.bad strong {
+      color: var(--red-text);
+    }
+
+    .chip.bad .chip-value {
+      color: var(--red-text);
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease,
+        opacity 0.16s ease;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: #292a3a;
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .primary {
+      background: #292a3a;
+      border-color: #292a3a;
+      color: #fff;
+    }
+
+    .danger {
+      background: #fff;
+      border-color: #f71f1f;
+      color: var(--red-text);
+    }
+
+    .ghost {
+      background: var(--panel-2);
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      padding: 9px 10px;
+      outline: none;
+    }
+
+    /* 键盘焦点环：按钮、折叠标题、输入控件 */
+    button:focus-visible,
+    summary:focus-visible,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* 表单校验错误：文字放输入框下方，输入框本身由 :has 标红 */
+    .field-error {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--red-text);
+    }
+
+    .field:has(.field-error:not([hidden])) input {
+      border-color: var(--red-text);
+    }
+
+    .check-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 10px 0 4px;
+    }
+
+    .check-row label {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: var(--text);
+    }
+
+    .check-row input {
+      width: auto;
+    }
+
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+
+    .cmd-grid button {
+      text-align: left;
+      min-height: 46px;
+    }
+
+    .cmd-grid small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .summary-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .summary-card strong {
+      font-size: 17px;
+    }
+
+    .state-text {
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .state-ok {
+      color: var(--green-text);
+    }
+
+    .state-warn {
+      color: var(--amber-text);
+    }
+
+    .state-bad {
+      color: var(--red-text);
+    }
+
+    .state-roasting {
+      color: var(--blue);
+    }
+
+    .state-agtron {
+      color: var(--purple);
+    }
+
+    .state-zeroing {
+      color: var(--amber-text);
+    }
+
+    .state-setting {
+      color: var(--cyan-text);
+    }
+
+    .state-history {
+      color: #616262;
+    }
+
+    .note {
+      margin: 12px 0 0;
+      border-left: 4px solid #6b45dd;
+      background: #f0ecfc;
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: #402985;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel-2);
+      padding: 0 12px;
+    }
+
+    details[open] {
+      padding-bottom: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 12px 0;
+      font-weight: 650;
+    }
+
+    .log-box {
+      height: 190px;
+      overflow: auto;
+      background: #111827;
+      color: #d1d5db;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 540px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      isolation: isolate;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 760px;
+      table-layout: fixed;
+    }
+
+    .data-packet-table {
+      min-width: 0;
+    }
+
+    .data-packet-table col.time-col {
+      width: 13%;
+    }
+
+    .data-packet-table col.transport-col {
+      width: 14%;
+    }
+
+    .data-packet-table col.type-col {
+      width: 19%;
+    }
+
+    .data-packet-table col.summary-col {
+      width: 54%;
+    }
+
+    .data-packet-table td:nth-child(3),
+    .data-packet-table td:nth-child(4) {
+      min-width: 0;
+    }
+
+    .data-packet-table td:nth-child(4) {
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e6e6e6;
+      padding: 10px 10px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8f9fa;
+      color: #616262;
+      z-index: 0;
+      font-weight: 650;
+    }
+
+    td.raw {
+      font-family: "Cascadia Mono", Consolas, monospace;
+      color: #616262;
+      max-width: 420px;
+      word-break: break-word;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 12px;
+    }
+
+    .tag.ble {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .tag.uart {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .event-mode-control {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .event-mode-control select {
+      width: auto;
+      min-width: 150px;
+    }
+
+    .packet-export-control {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .packet-export-control select {
+      width: auto;
+      min-width: 110px;
+    }
+
+    .curve-export-control {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .curve-export-control select {
+      width: auto;
+      min-width: 132px;
+    }
+
+    .dual-event-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .dual-event-column {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .dual-event-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e6e6e6;
+      background: #f8f9fa;
+      color: #616262;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .dual-event-column .table-wrap {
+      border: 0;
+      border-radius: 0;
+      max-height: 500px;
+    }
+
+    .dual-event-column table {
+      min-width: 420px;
+    }
+
+    .dual-event-column.ble-column {
+      border-top: 4px solid #4457ff;
+    }
+
+    .dual-event-column.uart-column {
+      border-top: 4px solid #00d28c;
+    }
+
+    .event-stream {
+      display: grid;
+      gap: 10px;
+      max-height: 520px;
+      overflow: auto;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .event-card {
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px 12px;
+      box-shadow: 0 8px 18px rgba(41, 42, 58, 0.05);
+    }
+
+    .event-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
+
+    .event-card-title {
+      font-weight: 760;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+
+    .event-card-detail {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .empty-stream {
+      color: var(--muted);
+      border: 1px dashed #d4d4d8;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      background: #fff;
+    }
+
+    .data-panel-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .agtron-sidebar {
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      width: 360px;
+      z-index: 20;
+      background: var(--bg);
+      border-radius: 18px;
+      box-shadow: -18px 0 26px rgba(248, 249, 250, 0.92);
+    }
+
+    .value-rail {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .agtron-sidebar .value-rail {
+      width: 100%;
+      box-shadow: var(--shadow);
+      border-color: #d0cae5;
+    }
+
+    .agtron-sidebar .value-rail + .value-rail {
+      margin-top: 12px;
+    }
+
+    .value-rail-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #e6e6e6;
+      background: #f8f9fa;
+      color: #616262;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .value-rail-title-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-toggle {
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      background: #fff;
+      color: #6b45dd;
+      border-color: #d0cae5;
+    }
+
+    .value-list {
+      display: grid;
+      gap: 8px;
+      max-height: 340px;
+      overflow: auto;
+      padding: 12px;
+    }
+
+    .agtron-sidebar .value-list {
+      max-height: none;
+      overflow: visible;
+      padding: 14px;
+    }
+
+    .value-rail.collapsed .value-list {
+      display: none;
+    }
+
+    .value-rail.collapsed {
+      width: max-content;
+      min-width: 0;
+      margin-left: auto;
+    }
+
+    .value-rail.collapsed .value-rail-title {
+      padding: 4px 10px;
+      border-bottom: 0;
+      font-size: 11px;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .value-rail.collapsed .value-rail-title-actions > span:first-child {
+      display: none;
+    }
+
+    .value-rail.collapsed .mini-toggle {
+      padding: 1px 8px;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .value-current-card {
+      border: 1px solid #d0cae5;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(41, 42, 58, 0.06);
+      padding: 16px;
+    }
+
+    .value-current-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .value-current-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #6b45dd;
+    }
+
+    .value-current-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+    }
+
+    .value-card {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      align-items: start;
+      border: 1px solid #e6e6e6;
+      border-radius: 13px;
+      background: #fff;
+      padding: 9px;
+    }
+
+    .value-card.agtron {
+      border-color: #d0cae5;
+      background: #f8f9fa;
+    }
+
+    .value-card.ror {
+      border-color: #fed7aa;
+      background: #fff7ed;
+    }
+
+    .value-card.audio {
+      border-color: #bae6fd;
+      background: #f0f9ff;
+    }
+
+    .value-card.distance {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    .value-card.yellow {
+      border-color: #fde68a;
+      background: #fffbeb;
+    }
+
+    .value-card.record {
+      border-color: #d4d4d8;
+      background: #f6f6f7;
+    }
+
+    .value-card-name {
+      justify-self: start;
+      border-radius: 999px;
+      background: #6b45dd;
+      color: #fff;
+      padding: 3px 9px;
+      font-weight: 750;
+      font-size: 12px;
+    }
+
+    .value-card.agtron .value-card-name,
+    .metric-pill.agtron .metric-name {
+      background: #6b45dd;
+    }
+
+    .value-card.ror .value-card-name,
+    .metric-pill.ror .metric-name {
+      background: #ea580c;
+    }
+
+    .value-card.audio .value-card-name,
+    .metric-pill.audio .metric-name {
+      background: #0284c7;
+    }
+
+    .value-card.distance .value-card-name,
+    .metric-pill.distance .metric-name {
+      background: #00d28c;
+    }
+
+    .value-card.yellow .value-card-name,
+    .metric-pill.yellow .metric-name {
+      background: #d97706;
+    }
+
+    .value-card.record .value-card-name,
+    .metric-pill.record .metric-name {
+      background: #616262;
+    }
+
+    .value-card-value {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .value-card.agtron .value-card-value {
+      color: #6b45dd;
+    }
+
+    .value-card.ror .value-card-value {
+      color: #ea580c;
+    }
+
+    .value-card.audio .value-card-value {
+      color: #0284c7;
+    }
+
+    .value-card.distance .value-card-value {
+      color: #00b479;
+    }
+
+    .value-card.yellow .value-card-value {
+      color: #d97706;
+    }
+
+    .value-card.record .value-card-value {
+      color: #616262;
+    }
+
+    .value-card-meta {
+      color: #949596;
+      font-size: 11px;
+    }
+
+    .data-kind {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-weight: 700;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .data-kind,
+    .metric-pill {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .data-kind.history {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .data-kind.agtron {
+      background: #f0ecfc;
+      color: #6b45dd;
+    }
+
+    .data-kind.roasting {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .data-kind.binary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .metric-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+      max-width: 100%;
+    }
+
+    .metric-pill {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      border: 1px solid #d0cae5;
+      border-radius: 999px;
+      background: #f0ecfc;
+      padding: 4px 9px 4px 5px;
+      color: #6b45dd;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .metric-name {
+      display: inline-block;
+      border-radius: 999px;
+      background: #6b45dd;
+      color: #fff;
+      padding: 2px 7px;
+      font-weight: 750;
+    }
+
+    .metric-pill strong {
+      color: #33216a;
+      font-size: 13px;
+    }
+
+    .compact-summary {
+      color: #334155;
+      line-height: 1.45;
+    }
+
+    .raw-details {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .raw-details summary {
+      padding: 4px 0;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .raw-details code {
+      display: block;
+      margin-top: 4px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #616262;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .soft-warning {
+      border-left-color: #f59e0b;
+      background: #fff7ed;
+      color: #7c2d12;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .grid,
+      .split,
+      .dual-event-grid,
+      .data-panel-grid,
+      .status-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .agtron-sidebar {
+        position: static;
+        width: 100%;
+      }
+
+      .agtron-sidebar .value-rail,
+      .value-rail.collapsed {
+        width: 100%;
+      }
+
+      header {
+        display: block;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .value-current-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---- 烘焙曲线 ---- */
+    .curve-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .curve-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 6px 0 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .curve-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .curve-legend-swatch {
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--muted);
+    }
+
+    .curve-legend-swatch.bar {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    .curve-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: clamp(420px, 50vh, 560px);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .curve-canvas-wrap.dragging {
+      cursor: grabbing;
+    }
+
+    #roastCurveCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      background: #fbfbfd;
+    }
+
+    .curve-hint {
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .curve-range-panel {
+      margin-top: 12px;
+    }
+
+    .curve-range-readout {
+      margin: 8px 0 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .curve-range-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 980px) {
+      .curve-canvas-wrap {
+        height: 360px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <div class="brand-kicker">LeBrew · Coffee Analysis Instruments</div>
+        <h1>RoastSee NEXT 上位机</h1>
+        <p class="subtitle">
+          支持 Web Bluetooth 与 Web Serial。接收端会把蓝牙 Notify 和 UART0 数据统一解析成事件表；
+          发送端按同一套 <code>NEXT:</code> 命令下发到蓝牙、串口或两者同时下发。
+        </p>
+      </div>
+      <div class="row">
+        <button id="langToggleBtn" class="ghost" type="button">English</button>
+        <button id="clearBtn" class="ghost">清空日志</button>
+        <button id="exportBtn" class="ghost">导出 CSV</button>
+      </div>
+    </header>
+
+    <section class="status-grid" aria-label="连接状态">
+      <div id="bleDeviceChip" class="chip"><strong>BLE 设备</strong> 未选择</div>
+      <div id="bleStatusChip" class="chip bad"><strong>BLE</strong> 未连接</div>
+      <div id="notifyStatusChip" class="chip bad"><strong>Notify</strong> 未打开</div>
+      <div id="serialStatusChip" class="chip bad"><strong>UART0</strong> 未连接</div>
+      <div id="currentPageChip" class="chip warn"><strong>当前页面</strong> 未知</div>
+      <div id="eventCountChip" class="chip"><strong>事件数</strong> 0</div>
+    </section>
+
+    <section class="grid">
+      <aside class="stack">
+        <section class="card">
+          <h2>蓝牙 BLE</h2>
+          <div class="row">
+            <button id="bleConnectBtn" class="primary">连接 RoastSeeNEXT</button>
+            <button id="bleNotifyBtn">重新打开 Notify</button>
+            <button id="bleDisconnectBtn" class="danger">断开 BLE</button>
+          </div>
+          <p class="note">
+            注意：NEXT 每次蓝牙连接或断线重连后，都必须重新对
+            <code>0000BB01-0000-1000-8000-00805F9B34FB</code> 执行 Notify 打开，
+            否则页面不会收到事件。本页面在连接成功后会自动执行一次，也提供手动“重新打开 Notify”按钮。
+          </p>
+        </section>
+
+        <section class="card">
+          <h2>串口 UART0</h2>
+          <div class="row">
+            <button id="serialConnectBtn" class="primary">连接串口</button>
+            <button id="serialDisconnectBtn" class="danger">断开串口</button>
+          </div>
+          <div class="field">
+            <label for="baudRateInput">波特率</label>
+            <input id="baudRateInput" type="number" min="1200" step="1" value="115200" />
+          </div>
+          <p class="note">
+            串口用 115200 / 8N1 / 无流控，直接连就行。
+            浏览器串口权限会占用 COM 口；烧录前请先断开串口，避免 COM busy。
+          </p>
+        </section>
+
+        <section class="card">
+          <h2>发送目标</h2>
+          <div class="check-row">
+            <label><input id="sendBleCheck" type="checkbox" checked /> 蓝牙</label>
+            <label><input id="sendSerialCheck" type="checkbox" /> 串口</label>
+          </div>
+          <p class="note">
+            普通用户建议只使用右侧按钮。自定义命令放在开发者选项里，避免误发未确认命令。
+          </p>
+          <details style="margin-top: 12px;">
+            <summary>开发者命令</summary>
+            <div class="check-row">
+              <label><input id="allowUnsafeCheck" type="checkbox" /> 允许发送不安全/未满足状态的命令</label>
+            </div>
+            <div class="field">
+              <label for="customCommandInput">自定义命令</label>
+              <textarea id="customCommandInput" rows="3" placeholder="例如：NEXT:PAGE.ROASTING_LIVE"></textarea>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <button id="sendCustomBtn" class="primary">发送自定义命令</button>
+            </div>
+          </details>
+        </section>
+
+        <section class="card">
+          <h2>模拟测试</h2>
+          <div class="row">
+            <button id="simulateOnceBtn">模拟一次数据</button>
+            <button id="simulateLiveBtn" class="primary">开始实时模拟</button>
+            <button id="stopSimulateBtn" class="danger">停止模拟</button>
+          </div>
+          <p class="note">
+            没有样机时用这里测试界面效果。模拟数据会走同一套接收解析逻辑，同时生成 BLE 和 UART0 事件，
+            并持续上传 Agtron 数值。
+          </p>
+        </section>
+      </aside>
+
+      <section class="stack">
+        <section class="card">
+          <div class="toolbar curve-toolbar">
+            <h2 style="margin: 0;">烘焙曲线</h2>
+            <div class="row">
+              <span class="muted curve-hint">滚轮缩放 · 拖动平移 · 双击复位 · 悬停看值</span>
+              <label class="curve-export-control" for="curveExportFormat">
+                <select id="curveExportFormat">
+                  <option value="png">PNG</option>
+                  <option value="jpeg">JPEG</option>
+                  <option value="webp">WebP</option>
+                  <option value="csv">CSV（数据）</option>
+                  <option value="tsv">TSV（数据）</option>
+                  <option value="json">JSON（含节点）</option>
+                </select>
+              </label>
+              <button id="curveExportBtn" class="ghost" type="button">导出曲线</button>
+              <button id="curveResetBtn" class="ghost" type="button">重置曲线</button>
+            </div>
+          </div>
+          <p class="muted" style="margin-top: -4px;">实时把 NEXT 上传的 Agtron、稳定 Agtron、Agtron ROR 与音频强度画成曲线；黄点 / 一爆 / 二爆 / 下豆会以竖线标注。</p>
+          <div class="curve-legend">
+            <span class="curve-legend-item"><span class="curve-legend-swatch" style="background: #6b45dd;"></span>当前 Agtron</span>
+            <span class="curve-legend-item"><span class="curve-legend-swatch" style="background: #4457ff;"></span>稳定 Agtron</span>
+            <span class="curve-legend-item"><span class="curve-legend-swatch" style="background: #00b479;"></span>Agtron ROR</span>
+            <span class="curve-legend-item"><span class="curve-legend-swatch bar" style="background: #b9bec7;"></span>音频强度</span>
+          </div>
+          <div class="curve-canvas-wrap">
+            <canvas id="roastCurveCanvas"></canvas>
+          </div>
+          <details class="curve-range-panel">
+            <summary>量程与缩放</summary>
+            <p class="muted curve-range-readout" id="curveRangeReadout">—</p>
+            <div class="curve-range-grid">
+              <div class="field">
+                <label for="curveTimeMinInput">时间起（秒）</label>
+                <input id="curveTimeMinInput" type="number" step="1" placeholder="留空 = 自动" />
+              </div>
+              <div class="field">
+                <label for="curveTimeMaxInput">时间止（秒）</label>
+                <input id="curveTimeMaxInput" type="number" step="1" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveTimeMaxError" hidden></p>
+              </div>
+              <div class="field">
+                <label for="curveTimeStepInput">时间刻度步长（秒）</label>
+                <input id="curveTimeStepInput" type="number" step="0.1" min="0" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveTimeStepError" hidden></p>
+              </div>
+              <div class="field">
+                <label for="curveAgtronMinInput">Agtron 下限</label>
+                <input id="curveAgtronMinInput" type="number" step="1" placeholder="留空 = 自动" />
+              </div>
+              <div class="field">
+                <label for="curveAgtronMaxInput">Agtron 上限</label>
+                <input id="curveAgtronMaxInput" type="number" step="1" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveAgtronMaxError" hidden></p>
+              </div>
+              <div class="field">
+                <label for="curveRateMinInput">ROR 下限</label>
+                <input id="curveRateMinInput" type="number" step="0.5" placeholder="留空 = 自动" />
+              </div>
+              <div class="field">
+                <label for="curveRateMaxInput">ROR 上限</label>
+                <input id="curveRateMaxInput" type="number" step="0.5" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveRateMaxError" hidden></p>
+              </div>
+              <div class="field">
+                <label for="curveAgtronStepInput">Agtron 刻度步长</label>
+                <input id="curveAgtronStepInput" type="number" step="0.5" min="0" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveAgtronStepError" hidden></p>
+              </div>
+              <div class="field">
+                <label for="curveRateStepInput">ROR 刻度步长</label>
+                <input id="curveRateStepInput" type="number" step="0.5" min="0" placeholder="留空 = 自动" />
+                <p class="field-error" id="curveRateStepError" hidden></p>
+              </div>
+            </div>
+            <div class="row">
+              <button id="curveRangeApplyBtn" class="primary" type="button">应用量程</button>
+              <button id="curveRangeAutoBtn" type="button">恢复自动量程</button>
+            </div>
+            <p class="muted" style="margin: 8px 0 0;">步长越小刻度越密，标签放不下时会自动隔几个显示，网格线仍按步长画；时间刻度步长小于 1 秒时，时间轴会显示小数秒。</p>
+          </details>
+        </section>
+
+        <section class="card">
+          <h2>用户操作</h2>
+          <div class="section-title"><span>页面导航</span><span>运行中会自动拦截容易造成状态冲突的跳转</span></div>
+          <div class="cmd-grid">
+            <button data-cmd="NEXT:PAGE.ROASTING_LIVE">进入烘焙实时页<small>用于开始烘焙或看实时数据</small></button>
+            <button data-cmd="NEXT:PAGE.AGTRON_LIVE">进入 Agtron 测量页<small>从固件主页进入</small></button>
+            <button data-cmd="NEXT:PAGE.ZEROING_CONFIRM">进入调零确认页<small>从固件主页进入</small></button>
+            <button data-cmd="NEXT:PAGE.HISTORY" data-block-when-running="true">进入历史页<small>运行中会被页面拦截</small></button>
+            <button data-cmd="NEXT:PAGE.BACK" data-block-when-running="true">返回上一页<small>运行中会被拦截</small></button>
+            <button id="homeBackBtn" type="button">回到主页<small>连续返回直到顶层页</small></button>
+          </div>
+
+          <div class="section-title"><span>采集控制</span><span>运行中会自动禁用危险跳转</span></div>
+          <div class="cmd-grid">
+            <button data-cmd="NEXT:ROASTING.START" data-requires-page="PAGE_ENTER_ROASTING_LIVE">开始烘焙<small>需先进入烘焙实时页</small></button>
+            <button data-cmd="NEXT:ROASTING.STOP">停止烘焙<small>仅烘焙运行中有效</small></button>
+            <button data-cmd="NEXT:AGTRON.START" data-requires-page="PAGE_ENTER_AGTRON_LIVE">开始 Agtron<small>需先进入 Agtron 测量页</small></button>
+            <button data-cmd="NEXT:AGTRON.STOP">停止 Agtron<small>仅 Agtron 运行中有效</small></button>
+          </div>
+
+          <div class="section-title"><span>数据读取</span><span>读取历史必须先进入历史页</span></div>
+          <div class="cmd-grid">
+            <button data-cmd="NEXT:HISTORY.READ" data-requires-page="PAGE_ENTER_HISTORY" data-block-when-running="true">读取历史数据<small>未在历史页或运行中会被拦截</small></button>
+          </div>
+
+          <div class="split" style="margin-top: 12px;">
+            <div class="field" style="margin-top: 0;">
+              <label for="yellowInput">黄点阈值 1-50</label>
+              <input id="yellowInput" type="number" min="1" max="50" value="20" />
+              <p class="field-error" id="yellowInputError" hidden></p>
+            </div>
+            <div class="field" style="margin-top: 0;">
+              <label>&nbsp;</label>
+              <button id="sendYellowBtn">设置黄点阈值</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <h2 style="margin: 0;">用户事件</h2>
+            <label class="event-mode-control" for="eventViewModeSelect">
+              显示方式
+              <select id="eventViewModeSelect">
+                <option value="timeline">按时间顺序</option>
+                <option value="dual">蓝牙 / 串口双列</option>
+              </select>
+            </label>
+            <label class="event-mode-control" for="eventTimePrecisionSelect">
+              时间精度
+              <select id="eventTimePrecisionSelect">
+                <option value="sec">精确到秒</option>
+                <option value="cs">精确到 0.1 秒</option>
+                <option value="ms">精确到毫秒</option>
+              </select>
+            </label>
+          </div>
+          <p class="muted" style="margin-top: -4px;">这里显示用户能理解的动作；原始协议在开发者选项里。</p>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <span>当前页面</span>
+              <strong id="currentPageText" class="state-text state-warn">未知</strong>
+            </div>
+            <div class="summary-card">
+              <span>烘焙状态</span>
+              <strong id="roastingStateText" class="state-text">未运行</strong>
+            </div>
+            <div class="summary-card">
+              <span>Agtron 状态</span>
+              <strong id="agtronStateText" class="state-text">未运行</strong>
+            </div>
+          </div>
+          <div id="eventTimelineWrap" class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>接收通道</th>
+                  <th>来源</th>
+                  <th>用户可读事件</th>
+                  <th>详情</th>
+                </tr>
+              </thead>
+              <tbody id="eventTableBody"></tbody>
+            </table>
+          </div>
+          <div id="eventDualWrap" class="dual-event-grid hidden">
+            <section class="dual-event-column ble-column">
+              <div class="dual-event-title">
+                <span>蓝牙 BLE</span>
+                <span id="bleEventCountText">0 条</span>
+              </div>
+              <div id="bleEventList" class="event-stream">
+                <div class="empty-stream">还没有收到蓝牙事件</div>
+              </div>
+            </section>
+            <section class="dual-event-column uart-column">
+              <div class="dual-event-title">
+                <span>串口 UART0</span>
+                <span id="serialEventCountText">0 条</span>
+              </div>
+              <div id="serialEventList" class="event-stream">
+                <div class="empty-stream">还没有收到串口事件</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="toolbar">
+            <h2 style="margin: 0;">NEXT 数据包</h2>
+            <div class="row">
+              <span class="muted">这里只解析 Agtron 返回的数据，其它原始数据保留在开发者日志。</span>
+              <label class="packet-export-control" for="exportPacketsFormat">
+                导出格式
+                <select id="exportPacketsFormat">
+                  <option value="csv">CSV</option>
+                  <option value="json">JSON</option>
+                  <option value="zip">ZIP</option>
+                </select>
+              </label>
+              <button id="exportPacketsBtn" class="ghost" type="button">导出数据包</button>
+            </div>
+          </div>
+          <div class="data-panel-grid">
+            <details>
+              <summary>历史数据包列表 <span id="dataPacketCountText" class="muted">0 条</span></summary>
+              <div class="table-wrap" style="max-height: 340px;">
+                <table class="data-packet-table">
+                  <colgroup>
+                    <col class="time-col" />
+                    <col class="transport-col" />
+                    <col class="type-col" />
+                    <col class="summary-col" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>时间</th>
+                      <th>接收通道</th>
+                      <th>类型</th>
+                      <th>关键内容</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dataTableBody"></tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="card">
+          <details>
+            <summary>开发者选项：原始事件与数据</summary>
+            <section class="split">
+              <section>
+                <h2>BLE 原始日志</h2>
+                <div id="bleLog" class="log-box"></div>
+              </section>
+              <section>
+                <h2>UART0 原始日志</h2>
+                <div id="serialLog" class="log-box"></div>
+              </section>
+            </section>
+          </details>
+        </section>
+      </section>
+
+      <aside class="agtron-sidebar">
+        <section id="agtronValueRail" class="value-rail">
+          <div class="value-rail-title">
+            <span>Agtron 实时数值</span>
+            <span class="value-rail-title-actions">
+              <span id="dataValueCountText">0 个</span>
+              <button id="agtronPanelToggleBtn" class="mini-toggle" type="button">收起</button>
+            </span>
+          </div>
+          <div id="dataValueList" class="value-list">
+            <div class="empty-stream">收到 Agtron 数值后会显示在这里</div>
+          </div>
+        </section>
+        <section id="roastNodeValueRail" class="value-rail">
+          <div class="value-rail-title">
+            <span>Agtron 烘焙节点</span>
+            <span class="value-rail-title-actions">
+              <span id="roastNodeCountText">0 个</span>
+              <button id="roastNodeToggleBtn" class="mini-toggle" type="button">收起</button>
+            </span>
+          </div>
+          <div id="roastNodeValueList" class="value-list">
+            <div class="empty-stream">收到烘焙节点后会显示在这里</div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const NEXT_SERVICE_UUID = '000000bb-0000-1000-8000-00805f9b34fb';
+    const NEXT_CHAR_UUID = '0000bb01-0000-1000-8000-00805f9b34fb';
+
+    const textEncoder = new TextEncoder();
+    const textDecoder = new TextDecoder('utf-8');
+
+    let bleDevice = null;
+    let bleServer = null;
+    let bleCharacteristic = null;
+    let bleNotifyOpen = false;
+    let bleLineBuffer = '';
+    let bleBinaryBuffer = new Uint8Array(0);
+
+    let serialPort = null;
+    let serialReader = null;
+    let serialWriter = null;
+    let serialReadActive = false;
+    let serialLineBuffer = '';
+    let serialBinaryBuffer = new Uint8Array(0);
+    let simulateTimer = null;
+    let simulateSeq = 1;
+    let simulateTick = 0;
+
+    const events = [];
+    const dataPackets = [];
+    const dataValues = [];
+    const roastNodeValues = [];
+    const appState = {
+      currentPage: '',
+      roastingRunning: false,
+      agtronRunning: false,
+      lastDataPacket: null,
+      lastRoastNodePacket: null,
+    };
+
+    const PAGE_NAMES = {
+      PAGE_ENTER_ROASTING: '烘焙主页',
+      PAGE_ENTER_AGTRON: 'Agtron 主页',
+      PAGE_ENTER_ZEROING: '调零主页',
+      PAGE_ENTER_SETTING: '设置主页',
+      PAGE_ENTER_ABOUT: '关于页面',
+      PAGE_ENTER_SETTING_OPTION: '设置菜单',
+      PAGE_ENTER_SETTING_LANGUAGE: '语言设置',
+      PAGE_ENTER_SETTING_SAVER: '熄屏时间设置',
+      PAGE_ENTER_SETTING_BUZZER: '蜂鸣器设置',
+      PAGE_ENTER_SETTING_REVERSAL: '屏幕翻转设置',
+      PAGE_ENTER_ABOUT_INFO: '关于详情',
+      PAGE_ENTER_ROASTING_LIVE: '烘焙实时页',
+      PAGE_ENTER_ROASTING_LIVE_OK: '烘焙完成确认页',
+      PAGE_ENTER_ROASTING_DATA: '烘焙数据页',
+      PAGE_ENTER_ROASTING_POSITION: '烘焙位置调整页',
+      PAGE_ENTER_AGTRON_LIVE: 'Agtron 测量页',
+      PAGE_ENTER_HISTORY: '历史列表页',
+      PAGE_ENTER_HISTORY_DETAIL: '历史详情页',
+      PAGE_ENTER_ZEROING_CONFIRM: '调零确认页',
+      PAGE_ENTER_ZEROING_ADJUST: '调零调整页',
+      PAGE_ENTER_ZEROING_RESULT: '调零结果页',
+      PAGE_ENTER_LEBREW_WELCOME: '开机欢迎页',
+    };
+
+    const EVENT_NAMES = {
+      ...PAGE_NAMES,
+      ROASTING_START: '开始烘焙',
+      ROASTING_STOP: '停止烘焙',
+      ROASTING_LIVE_BACK: '离开烘焙实时页',
+      ROASTING_LIVE_FINISH_OPEN: '打开烘焙完成确认',
+      ROASTING_PARAM_TOGGLE: '切换烘焙参数面板',
+      ROASTING_AGTRON_SET: '设置烘焙 Agtron 目标值',
+      ROASTING_POSITION_SCAN: '烘焙位置扫描',
+      ROASTING_POSITION_ALIGN: '烘焙位置对齐',
+      ROASTING_POSITION_BIAS: '设置烘焙位置偏移',
+      ROASTING_SOUND_SET: '设置烘焙声音',
+      AGTRON_START: '开始 Agtron 测量',
+      AGTRON_STOP: '停止 Agtron 测量',
+      AGTRON_LIVE_BACK: '离开 Agtron 测量页',
+      AGTRON_DISTANCE_TOGGLE: '切换 Agtron 距离模式',
+      AGTRON_DEGREE_TYPE: '切换 Agtron 色卡类型',
+      AGTRON_CARD_EDIT: '编辑 Agtron 色卡值',
+      AGTRON_CARD_VALUE: '确认 Agtron 色卡值',
+      ZEROING_START: '开始调零',
+      ZEROING_FINISH: '调零完成',
+      ZEROING_RESULT_BACK: '离开调零结果页',
+      ZEROING_ADJUST_BACK: '离开调零调整页',
+      SETTING_LANGUAGE_SELECT: '选择语言',
+      SETTING_LANGUAGE_SET: '确认语言',
+      SETTING_SAVER_SELECT: '选择熄屏时间',
+      SETTING_SAVER_SET: '确认熄屏时间',
+      SETTING_BUZZER_SET: '确认蜂鸣器设置',
+      SETTING_REVERSAL_SET: '确认屏幕方向',
+      ABOUT_WIFI_LOG_TOGGLE: '切换 Wi-Fi 日志',
+      HISTORY_OPEN: '打开历史列表',
+      HISTORY_ITEM_OPEN: '打开历史记录',
+      HISTORY_DELETE_OPEN: '打开删除确认',
+      HISTORY_DELETE_CANCEL: '取消删除',
+      HISTORY_DELETE_CONFIRM: '确认删除',
+      PHYSICAL_KEY: '实体按键',
+      COMMAND_OK: '命令已接受',
+      COMMAND_REJECTED: '命令被拒绝',
+      COMMAND_UNKNOWN: '未知命令',
+      COMMAND_PARAM_ERROR: '命令参数错误',
+    };
+
+    const SOURCE_NAMES = {
+      TOUCH: '屏幕触摸',
+      BLE: '蓝牙命令',
+      UART0: '串口命令',
+      SYSTEM: '系统',
+    };
+
+    let currentLang = new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'zh';
+    const originalTextNodes = new WeakMap();
+
+    const I18N_EN = {
+      'RoastSee NEXT 上位机': 'RoastSee NEXT Host Console',
+      '支持 Web Bluetooth 与 Web Serial。接收端会把蓝牙 Notify 和 UART0 数据统一解析成事件表；': 'Supports Web Bluetooth and Web Serial. Incoming BLE Notify and UART0 data are parsed into a unified event table.',
+      '发送端按同一套': 'Outgoing commands use the same',
+      '命令下发到蓝牙、串口或两者同时下发。': 'command set for BLE, Serial, or both.',
+      '清空日志': 'Clear Logs',
+      '导出 CSV': 'Export CSV',
+      '连接状态': 'Connection Status',
+      'BLE 设备': 'BLE Device',
+      '未选择': 'Not Selected',
+      '未连接': 'Disconnected',
+      '已连接': 'Connected',
+      'Notify': 'Notify',
+      '未打开': 'Off',
+      '已打开': 'On',
+      '当前页面': 'Current Page',
+      '未知': 'Unknown',
+      '事件数': 'Events',
+      '蓝牙 BLE': 'Bluetooth BLE',
+      '连接 RoastSeeNEXT': 'Connect RoastSeeNEXT',
+      '重新打开 Notify': 'Reopen Notify',
+      '断开 BLE': 'Disconnect BLE',
+      '注意：NEXT 每次蓝牙连接或断线重连后，都必须重新对': 'Note: after every BLE connection or reconnect, NEXT must reopen Notify on',
+      '执行 Notify 打开，': 'before events can be received.',
+      '否则页面不会收到事件。本页面在连接成功后会自动执行一次，也提供手动“重新打开 Notify”按钮。': 'This page does it automatically after connection and also provides the Reopen Notify button.',
+      '串口 UART0': 'Serial UART0',
+      '连接串口': 'Connect Serial',
+      '断开串口': 'Disconnect Serial',
+      '波特率': 'Baud Rate',
+      '串口用 115200 / 8N1 / 无流控，直接连就行。': 'Serial runs at 115200 / 8N1 / no flow control. Just connect.',
+      '浏览器串口权限会占用 COM 口；烧录前请先断开串口，避免 COM busy。': 'Browser serial permission occupies the COM port. Disconnect Serial before flashing to avoid COM busy.',
+      '发送目标': 'Send Targets',
+      '蓝牙': 'BLE',
+      '串口': 'Serial',
+      '普通用户建议只使用右侧按钮。自定义命令放在开发者选项里，避免误发未确认命令。': 'Use the buttons on the right for normal operation. Custom commands are under Developer Commands to avoid accidental sends.',
+      '开发者命令': 'Developer Commands',
+      '允许发送不安全/未满足状态的命令': 'Allow unsafe commands / bypass state checks',
+      '自定义命令': 'Custom Command',
+      '例如：NEXT:PAGE.ROASTING_LIVE': 'Example: NEXT:PAGE.ROASTING_LIVE',
+      '发送自定义命令': 'Send Custom Command',
+      '模拟测试': 'Simulation',
+      '模拟一次数据': 'Simulate Once',
+      '开始实时模拟': 'Start Live Simulation',
+      '停止模拟': 'Stop Simulation',
+      '没有样机时用这里测试界面效果。模拟数据会走同一套接收解析逻辑，同时生成 BLE 和 UART0 事件，': 'Use this to test the UI without hardware. Simulated data uses the same receive parser and creates both BLE and UART0 events.',
+      '并持续上传 Agtron 数值。': 'It also streams Agtron values.',
+      '用户操作': 'User Actions',
+      '页面导航': 'Page Navigation',
+      '运行中会自动拦截容易造成状态冲突的跳转': 'Risky navigation is blocked while acquisition is running',
+      '运行中会被拦截': 'Blocked while running',
+      '进入烘焙实时页': 'Enter Roasting Live',
+      '用于开始烘焙或看实时数据': 'Start roasting or view live data',
+      '进入 Agtron 测量页': 'Enter Agtron Live',
+      '从固件主页进入': 'Enter from firmware home',
+      '进入调零确认页': 'Enter Zeroing Confirm',
+      '进入历史页': 'Enter History',
+      '运行中会被页面拦截': 'Blocked while running',
+      '返回上一页': 'Back',
+      '回到主页': 'Return Home',
+      '连续返回直到顶层页': 'Send Back repeatedly to reach home',
+      '采集控制': 'Acquisition Control',
+      '运行中会自动禁用危险跳转': 'Risky actions are disabled while running',
+      '开始烘焙': 'Start Roasting',
+      '需先进入烘焙实时页': 'Enter Roasting Live first',
+      '停止烘焙': 'Stop Roasting',
+      '仅烘焙运行中有效': 'Only while roasting is running',
+      '开始 Agtron': 'Start Agtron',
+      '需先进入 Agtron 测量页': 'Enter Agtron Live first',
+      '停止 Agtron': 'Stop Agtron',
+      '仅 Agtron 运行中有效': 'Only while Agtron is running',
+      '数据读取': 'Data Readout',
+      '读取历史必须先进入历史页': 'Enter History before reading',
+      '读取历史数据': 'Read History Data',
+      '未在历史页或运行中会被拦截': 'Blocked outside History or while running',
+      '黄点阈值 1-50': 'Yellow Threshold 1-50',
+      '设置黄点阈值': 'Set Yellow Threshold',
+      '用户事件': 'User Events',
+      '显示方式': 'View',
+      '按时间顺序': 'Timeline',
+      '蓝牙 / 串口双列': 'BLE / Serial Columns',
+      '这里显示用户能理解的动作；原始协议在开发者选项里。': 'User-readable actions appear here; raw protocol is under Developer Options.',
+      '烘焙状态': 'Roasting State',
+      'Agtron 状态': 'Agtron State',
+      '未运行': 'Stopped',
+      '运行中': 'Running',
+      '时间': 'Time',
+      '接收通道': 'Channel',
+      '来源': 'Source',
+      '用户可读事件': 'Event',
+      '详情': 'Details',
+      '还没有收到蓝牙事件': 'No BLE events yet',
+      '还没有收到串口事件': 'No serial events yet',
+      'NEXT 数据包': 'NEXT Data Packets',
+      '这里只解析 Agtron 返回的数据，其它原始数据保留在开发者日志。': 'Only Agtron returned data is parsed here. Other raw data stays in developer logs.',
+      '历史数据包列表': 'Packet History',
+      '导出数据包': 'Export Packets',
+      '导出格式': 'Export Format',
+      '没有可导出的数据包': 'No packets to export',
+      '类型': 'Type',
+      '关键内容': 'Key Content',
+      '开发者选项：原始事件与数据': 'Developer Options: Raw Events and Data',
+      'BLE 原始日志': 'BLE Raw Log',
+      'UART0 原始日志': 'UART0 Raw Log',
+      'Agtron 实时数值': 'Agtron Live Values',
+      '最新': 'Latest',
+      '收起': 'Collapse',
+      '展开': 'Expand',
+      '收到 Agtron 数值后会显示在这里': 'Agtron values will appear here',
+      'Agtron 烘焙节点': 'Agtron Roast Milestones',
+      '收到烘焙节点后会显示在这里': 'Roast milestones will appear here',
+      '0 条': '0 rows',
+      '0 个': '0',
+      '个': '',
+      '条': ' rows',
+      '烘焙主页': 'Roasting Home',
+      'Agtron 主页': 'Agtron Home',
+      '调零主页': 'Zeroing Home',
+      '设置主页': 'Settings Home',
+      '关于页面': 'About',
+      '设置菜单': 'Settings Menu',
+      '语言设置': 'Language Settings',
+      '熄屏时间设置': 'Screen Saver Settings',
+      '蜂鸣器设置': 'Buzzer Settings',
+      '屏幕翻转设置': 'Screen Rotation Settings',
+      '关于详情': 'About Details',
+      '烘焙实时页': 'Roasting Live',
+      '烘焙完成确认页': 'Roasting Finish Confirm',
+      '烘焙数据页': 'Roasting Data',
+      '烘焙位置调整页': 'Roasting Position',
+      'Agtron 测量页': 'Agtron Live',
+      '历史列表页': 'History List',
+      '历史详情页': 'History Detail',
+      '调零确认页': 'Zeroing Confirm',
+      '调零调整页': 'Zeroing Adjust',
+      '调零结果页': 'Zeroing Result',
+      '开机欢迎页': 'Welcome',
+      '开始烘焙': 'Start Roasting',
+      '停止烘焙': 'Stop Roasting',
+      '离开烘焙实时页': 'Leave Roasting Live',
+      '打开烘焙完成确认': 'Open Roasting Finish Confirm',
+      '切换烘焙参数面板': 'Toggle Roasting Parameter Panel',
+      '设置烘焙 Agtron 目标值': 'Set Roasting Agtron Target',
+      '烘焙位置扫描': 'Roasting Position Scan',
+      '烘焙位置对齐': 'Roasting Position Align',
+      '设置烘焙位置偏移': 'Set Roasting Position Offset',
+      '设置烘焙声音': 'Set Roasting Sound',
+      '开始 Agtron 测量': 'Start Agtron Measurement',
+      '停止 Agtron 测量': 'Stop Agtron Measurement',
+      '离开 Agtron 测量页': 'Leave Agtron Live',
+      '切换 Agtron 距离模式': 'Toggle Agtron Distance Mode',
+      '切换 Agtron 色卡类型': 'Toggle Agtron Card Type',
+      '编辑 Agtron 色卡值': 'Edit Agtron Card Value',
+      '确认 Agtron 色卡值': 'Confirm Agtron Card Value',
+      '开始调零': 'Start Zeroing',
+      '调零完成': 'Zeroing Complete',
+      '离开调零结果页': 'Leave Zeroing Result',
+      '离开调零调整页': 'Leave Zeroing Adjust',
+      '选择语言': 'Select Language',
+      '确认语言': 'Confirm Language',
+      '选择熄屏时间': 'Select Screen Saver Time',
+      '确认熄屏时间': 'Confirm Screen Saver Time',
+      '确认蜂鸣器设置': 'Confirm Buzzer Setting',
+      '确认屏幕方向': 'Confirm Screen Direction',
+      '切换 Wi-Fi 日志': 'Toggle Wi-Fi Log',
+      '打开历史列表': 'Open History List',
+      '打开历史记录': 'Open History Record',
+      '打开删除确认': 'Open Delete Confirm',
+      '取消删除': 'Cancel Delete',
+      '确认删除': 'Confirm Delete',
+      '实体按键': 'Physical Button',
+      '命令已接受': 'Command Accepted',
+      '命令被拒绝': 'Command Rejected',
+      '未知命令': 'Unknown Command',
+      '命令参数错误': 'Command Parameter Error',
+      '屏幕触摸': 'Touch',
+      '蓝牙命令': 'BLE Command',
+      '串口命令': 'Serial Command',
+      '系统': 'System',
+      '当前 Agtron': 'Current Agtron',
+      '稳定 Agtron': 'Stable Agtron',
+      '音频强度': 'Audio Level',
+      '距离': 'Distance',
+      '黄点时间': 'Yellow Time',
+      '烘焙时间': 'Roast Time',
+      '黄点状态': 'Yellow State',
+      '记录序号': 'Record No.',
+      '已触发': 'Triggered',
+      '未触发': 'Not Triggered',
+      'Agtron 实时数据': 'Agtron Live Data',
+      'Roasting Live 二进制帧': 'Roasting Live Binary Frame',
+      '已解析 NEXT 实时二进制帧': 'Parsed NEXT live binary frame',
+      'Agtron 文本数据': 'Agtron Text Data',
+      '非 Agtron 文本': 'Non-Agtron Text',
+      'Agtron 数据': 'Agtron Data',
+      '收到 Agtron 数据': 'Received Agtron data',
+      '中文': '中文',
+      '命令不能为空。': 'Command cannot be empty.',
+      '采集运行中，为避免设备状态冲突已禁用': 'Disabled while acquisition is running to avoid state conflicts',
+      '当前有采集正在运行，请先停止烘焙或 Agtron': 'Acquisition is running. Stop Roasting or Agtron first',
+      '等待设备上报当前页面后再返回': 'Wait for the device to report its current page before going back',
+      '烘焙运行中不建议跳转 Agtron 页面，请先停止烘焙': 'Stop Roasting before entering Agtron',
+      'Agtron 运行中不建议跳转烘焙页面，请先停止 Agtron': 'Stop Agtron before entering Roasting',
+      '采集运行中不建议进入调零，请先停止烘焙或 Agtron': 'Stop Roasting or Agtron before Zeroing',
+      '烘焙已在运行': 'Roasting is already running',
+      'Agtron 运行中，请先停止 Agtron': 'Agtron is running. Stop Agtron first',
+      'Agtron 已在运行': 'Agtron is already running',
+      '烘焙运行中，请先停止烘焙': 'Roasting is running. Stop Roasting first',
+      '烘焙未运行': 'Roasting is not running',
+      'Agtron 未运行': 'Agtron is not running',
+      '采集运行中，请先停止烘焙或 Agtron': 'Stop Roasting or Agtron first',
+      '连续发送返回命令，直到回到顶层主页': 'Send Back repeatedly until reaching the top-level home page',
+      '文本数据': 'Text Data',
+      '设备已接受上位机命令': 'Device accepted host command',
+      '设备拒绝执行该命令': 'Device rejected the command',
+      '设备不认识该命令': 'Device does not recognize the command',
+      '命令参数不正确': 'Command parameter is invalid',
+      '实体按键短按': 'Physical button short press',
+      '已收到': 'Received',
+      '黄点 Agtron': 'Yellow Agtron',
+      '一爆时间': 'First Crack Time',
+      '一爆 Agtron': 'First Crack Agtron',
+      '二爆时间': 'Second Crack Time',
+      '二爆 Agtron': 'Second Crack Agtron',
+      '下豆时间': 'Drop Time',
+      '下豆 Agtron': 'Drop Agtron',
+      '烘焙节点': 'Roast Milestone',
+      '已解析出关键值': 'Key values parsed',
+      '当前浏览器不支持 Web Bluetooth。建议使用 Chrome / Edge，并通过 HTTPS 或 localhost 打开。': 'Web Bluetooth is not supported by this browser. Use Chrome / Edge over HTTPS or localhost.',
+      '未选择 BLE 设备': 'No BLE device selected',
+      'BLE 已连接，BB01 Notify 已打开': 'BLE connected, BB01 Notify opened',
+      'BLE 特征未就绪': 'BLE characteristic not ready',
+      'BLE 连接断开。重连后必须重新打开 Notify。': 'BLE disconnected. Reopen Notify after reconnecting.',
+      '当前浏览器不支持 Web Serial。建议使用 Chrome / Edge，并通过 HTTPS 或 localhost 打开。': 'Web Serial is not supported by this browser. Use Chrome / Edge over HTTPS or localhost.',
+      '串口连接失败：{error}': 'Serial connection failed: {error}',
+      'UART0 已连接': 'UART0 connected',
+      'UART0 已断开': 'UART0 disconnected',
+      '请至少选择一个发送目标：蓝牙或串口。': 'Select at least one send target: BLE or Serial.',
+      'BLE 未连接': 'BLE not connected',
+      'UART0 未连接': 'UART0 not connected',
+      '黄点阈值必须是 1-50 的整数。': 'Yellow threshold must be an integer between 1 and 50.',
+      '当前收到的数据': 'Latest Received Data',
+      '当前收到的烘焙节点': 'Latest Roast Milestones',
+      '查看原始内容': 'View Raw Content',
+      '字节': ' bytes',
+      '参数：{param}': 'Param: {param}',
+      '实体按键：{param}': 'Physical Button: {param}',
+      '进入：{page}': 'Entered: {page}',
+      '当前已经在：{page}': 'Already on: {page}',
+      '等待设备上报当前页面；需要先进入：{page}': 'Waiting for device page report; enter {page} first',
+      '需要先进入：{page}': 'Enter {page} first',
+      '开发者已允许绕过：{reason}': 'Developer override enabled: {reason}',
+      '连接设备：{name}': 'Connecting device: {name}',
+      '串口读取异常：{error}': 'Serial read error: {error}',
+      '取消读取失败：{error}': 'Cancel read failed: {error}',
+      '释放写入器失败：{error}': 'Release writer failed: {error}',
+      '关闭串口失败：{error}': 'Close serial failed: {error}',
+      '开发者模式已允许绕过，仍然发送吗？': 'Developer override is enabled. Send anyway?',
+      'SKIP 用户区未显示：非 Agtron 数据包，{bytes} 字节': 'SKIP user area not shown: non-Agtron packet, {bytes} bytes',
+      'SKIP 用户区未显示：非 Agtron 文本 {line}': 'SKIP user area not shown: non-Agtron text {line}',
+      'WARN 实时帧 CRC 错误：expected {expected}, actual {actual}': 'WARN live frame CRC error: expected {expected}, actual {actual}',
+      '烘焙曲线': 'Roast Curve',
+      '重置曲线': 'Reset Curve',
+      '实时把 NEXT 上传的 Agtron、稳定 Agtron、Agtron ROR 与音频强度画成曲线；黄点 / 一爆 / 二爆 / 下豆会以竖线标注。': 'Plots the Agtron, Stable Agtron, Agtron ROR and audio level streamed by NEXT in real time; Yellow, First Crack, Second Crack and Drop are marked with vertical lines.',
+      'Agtron ROR': 'Agtron ROR',
+      '黄点': 'Yellow',
+      '一爆': 'First Crack',
+      '二爆': 'Second Crack',
+      '下豆': 'Drop',
+      '滚轮缩放 · 拖动平移 · 双击复位 · 悬停看值': 'Wheel to zoom · Drag to pan · Double-click to reset · Hover for values',
+      '量程与缩放': 'Range & Zoom',
+      '时间起（秒）': 'Time From (s)',
+      '时间止（秒）': 'Time To (s)',
+      'Agtron 下限': 'Agtron Min',
+      'Agtron 上限': 'Agtron Max',
+      'ROR 下限': 'ROR Min',
+      'ROR 上限': 'ROR Max',
+      '留空 = 自动': 'Blank = auto',
+      '应用量程': 'Apply Range',
+      '恢复自动量程': 'Auto Range',
+      '导出曲线': 'Export Curve',
+      'CSV（数据）': 'CSV (data)',
+      'TSV（数据）': 'TSV (data)',
+      'JSON（含节点）': 'JSON (with milestones)',
+      '还没有曲线数据可以导出': 'No curve data to export yet',
+      'Agtron 刻度步长': 'Agtron Tick Step',
+      'ROR 刻度步长': 'ROR Tick Step',
+      '时间刻度步长（秒）': 'Time Tick Step (s)',
+      '步长越小刻度越密，标签放不下时会自动隔几个显示，网格线仍按步长画；时间刻度步长小于 1 秒时，时间轴会显示小数秒。': 'Smaller step means denser ticks; labels thin out automatically when they would overlap while grid lines still follow the step. When the time step is below 1 s the time axis shows fractional seconds.',
+      '刻度步长必须大于 0': 'Tick step must be greater than 0',
+      '时间 {time} ｜ Agtron {agtron} ｜ ROR {rate}': 'Time {time} | Agtron {agtron} | ROR {rate}',
+      '时间量程至少 {seconds} 秒': 'Time range must be at least {seconds} s',
+      'Agtron 上限必须大于下限': 'Agtron Max must be greater than Min',
+      'ROR 上限必须大于下限': 'ROR Max must be greater than Min',
+      '等待实时数据：进入烘焙实时页并开始烘焙后，曲线会自动绘制': 'Waiting for live data: enter the roasting live page and start roasting to draw the curve automatically',
+      '时间精度': 'Time Precision',
+      '精确到秒': 'Seconds',
+      '精确到 0.1 秒': '0.1 s',
+      '精确到毫秒': 'Milliseconds',
+      '当前浏览器不支持该导出格式': 'This browser cannot export the selected format'
+    };
+
+    const I18N_SORTED_KEYS = Object.keys(I18N_EN).sort((left, right) => right.length - left.length);
+
+    const COMMAND_PAGE_REQUIREMENTS = {
+      'NEXT:ROASTING.START': 'PAGE_ENTER_ROASTING_LIVE',
+      'NEXT:AGTRON.START': 'PAGE_ENTER_AGTRON_LIVE',
+      'NEXT:HISTORY.READ': 'PAGE_ENTER_HISTORY',
+    };
+
+    const COMMAND_TARGET_PAGES = {
+      'NEXT:PAGE.ROASTING_LIVE': 'PAGE_ENTER_ROASTING_LIVE',
+      'NEXT:PAGE.AGTRON_LIVE': 'PAGE_ENTER_AGTRON_LIVE',
+      'NEXT:PAGE.ZEROING_CONFIRM': 'PAGE_ENTER_ZEROING_CONFIRM',
+      'NEXT:PAGE.HISTORY': 'PAGE_ENTER_HISTORY',
+    };
+
+    const PAGE_BACK_STEPS_TO_HOME = {
+      PAGE_ENTER_ROASTING_LIVE: 1,
+      PAGE_ENTER_ROASTING_LIVE_OK: 2,
+      PAGE_ENTER_ROASTING_DATA: 2,
+      PAGE_ENTER_ROASTING_POSITION: 2,
+      PAGE_ENTER_AGTRON_LIVE: 1,
+      PAGE_ENTER_HISTORY_DETAIL: 1,
+      PAGE_ENTER_ZEROING_CONFIRM: 1,
+      PAGE_ENTER_ZEROING_ADJUST: 2,
+      PAGE_ENTER_ZEROING_RESULT: 2,
+      PAGE_ENTER_SETTING_OPTION: 1,
+      PAGE_ENTER_SETTING_LANGUAGE: 2,
+      PAGE_ENTER_SETTING_SAVER: 2,
+      PAGE_ENTER_SETTING_BUZZER: 2,
+      PAGE_ENTER_SETTING_REVERSAL: 2,
+      PAGE_ENTER_ABOUT_INFO: 1,
+    };
+
+    function normalizeI18nKey(value) {
+      return String(value ?? '').replace(/\s+/g, ' ').trim();
+    }
+
+    function t(value) {
+      if (currentLang !== 'en') return String(value ?? '');
+      return I18N_EN[normalizeI18nKey(value)] || String(value ?? '');
+    }
+
+    function tpl(template, params = {}) {
+      const source = normalizeI18nKey(template);
+      const translated = currentLang === 'en' ? (I18N_EN[source] || template) : template;
+      return String(translated).replace(/\{(\w+)\}/g, (_, key) => String(params[key] ?? ''));
+    }
+
+    function unitText(value, unit) {
+      if (currentLang === 'en') return `${value}${I18N_EN[unit] ?? unit}`;
+      return `${value} ${unit}`;
+    }
+
+    function translateTextContent(value) {
+      const source = String(value ?? '');
+      if (currentLang !== 'en') return source;
+      let result = source;
+      I18N_SORTED_KEYS.forEach((key) => {
+        result = result.split(key).join(I18N_EN[key]);
+      });
+      return result;
+    }
+
+    function applyLanguage() {
+      document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
+      document.title = currentLang === 'en' ? t('RoastSee NEXT 上位机') : 'RoastSee NEXT 上位机';
+      if (els.langToggleBtn) els.langToggleBtn.textContent = currentLang === 'en' ? '中文' : 'English';
+
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('script, style, .log-box')) return NodeFilter.FILTER_REJECT;
+          return normalizeI18nKey(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        },
+      });
+
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      textNodes.forEach((node) => {
+        if (!originalTextNodes.has(node)) originalTextNodes.set(node, node.nodeValue);
+        const original = originalTextNodes.get(node);
+        node.nodeValue = currentLang === 'en' ? translateTextContent(original) : original;
+      });
+
+      document.querySelectorAll('[placeholder], [title], [aria-label]').forEach((element) => {
+        ['placeholder', 'title', 'aria-label'].forEach((attr) => {
+          if (!element.hasAttribute(attr)) return;
+          const dataKey = `i18nOriginal${attr.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())}`;
+          if (!element.dataset[dataKey]) element.dataset[dataKey] = element.getAttribute(attr);
+          const original = element.dataset[dataKey];
+          element.setAttribute(attr, currentLang === 'en' ? t(original) : original);
+        });
+      });
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang === 'en' ? 'en' : 'zh';
+      applyLanguage();
+      renderAllDynamic();
+      scheduleCurveDraw();
+      updateStatus();
+      updateEventCounts();
+    }
+
+    const $ = (id) => document.getElementById(id);
+
+    const els = {
+      bleDeviceChip: $('bleDeviceChip'),
+      bleStatusChip: $('bleStatusChip'),
+      notifyStatusChip: $('notifyStatusChip'),
+      serialStatusChip: $('serialStatusChip'),
+      currentPageChip: $('currentPageChip'),
+      eventCountChip: $('eventCountChip'),
+      currentPageText: $('currentPageText'),
+      roastingStateText: $('roastingStateText'),
+      agtronStateText: $('agtronStateText'),
+      langToggleBtn: $('langToggleBtn'),
+      bleConnectBtn: $('bleConnectBtn'),
+      bleNotifyBtn: $('bleNotifyBtn'),
+      bleDisconnectBtn: $('bleDisconnectBtn'),
+      serialConnectBtn: $('serialConnectBtn'),
+      serialDisconnectBtn: $('serialDisconnectBtn'),
+      baudRateInput: $('baudRateInput'),
+      sendBleCheck: $('sendBleCheck'),
+      sendSerialCheck: $('sendSerialCheck'),
+      allowUnsafeCheck: $('allowUnsafeCheck'),
+      customCommandInput: $('customCommandInput'),
+      sendCustomBtn: $('sendCustomBtn'),
+      homeBackBtn: $('homeBackBtn'),
+      simulateOnceBtn: $('simulateOnceBtn'),
+      simulateLiveBtn: $('simulateLiveBtn'),
+      stopSimulateBtn: $('stopSimulateBtn'),
+      yellowInput: $('yellowInput'),
+      yellowInputError: $('yellowInputError'),
+      sendYellowBtn: $('sendYellowBtn'),
+      clearBtn: $('clearBtn'),
+      exportBtn: $('exportBtn'),
+      exportPacketsBtn: $('exportPacketsBtn'),
+      exportPacketsFormat: $('exportPacketsFormat'),
+      eventViewModeSelect: $('eventViewModeSelect'),
+      eventTimePrecisionSelect: $('eventTimePrecisionSelect'),
+      eventTimelineWrap: $('eventTimelineWrap'),
+      eventDualWrap: $('eventDualWrap'),
+      eventTableBody: $('eventTableBody'),
+      bleEventList: $('bleEventList'),
+      serialEventList: $('serialEventList'),
+      bleEventCountText: $('bleEventCountText'),
+      serialEventCountText: $('serialEventCountText'),
+      dataTableBody: $('dataTableBody'),
+      dataPacketCountText: $('dataPacketCountText'),
+      agtronValueRail: $('agtronValueRail'),
+      agtronPanelToggleBtn: $('agtronPanelToggleBtn'),
+      dataValueList: $('dataValueList'),
+      dataValueCountText: $('dataValueCountText'),
+      roastNodeValueRail: $('roastNodeValueRail'),
+      roastNodeToggleBtn: $('roastNodeToggleBtn'),
+      roastNodeValueList: $('roastNodeValueList'),
+      roastNodeCountText: $('roastNodeCountText'),
+      bleLog: $('bleLog'),
+      serialLog: $('serialLog'),
+      roastCurveCanvas: $('roastCurveCanvas'),
+      curveResetBtn: $('curveResetBtn'),
+      curveTimeMinInput: $('curveTimeMinInput'),
+      curveTimeMaxInput: $('curveTimeMaxInput'),
+      curveAgtronMinInput: $('curveAgtronMinInput'),
+      curveAgtronMaxInput: $('curveAgtronMaxInput'),
+      curveRateMinInput: $('curveRateMinInput'),
+      curveRateMaxInput: $('curveRateMaxInput'),
+      curveRangeApplyBtn: $('curveRangeApplyBtn'),
+      curveRangeAutoBtn: $('curveRangeAutoBtn'),
+      curveRangeReadout: $('curveRangeReadout'),
+      curveAgtronStepInput: $('curveAgtronStepInput'),
+      curveRateStepInput: $('curveRateStepInput'),
+      curveTimeStepInput: $('curveTimeStepInput'),
+      curveTimeMaxError: $('curveTimeMaxError'),
+      curveTimeStepError: $('curveTimeStepError'),
+      curveAgtronMaxError: $('curveAgtronMaxError'),
+      curveRateMaxError: $('curveRateMaxError'),
+      curveAgtronStepError: $('curveAgtronStepError'),
+      curveRateStepError: $('curveRateStepError'),
+      curveExportBtn: $('curveExportBtn'),
+      curveExportFormat: $('curveExportFormat'),
+    };
+
+    function nowTime() {
+      return new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    }
+
+    // 事件表 / 数据包表的时间精度，默认到秒；只影响显示与导出，不影响接收与解析
+    const TIME_PRECISION_DIGITS = { sec: 0, cs: 1, ms: 3 };
+    let eventTimePrecision = 'sec';
+
+    function formatTimeStamp(ts) {
+      const date = new Date(Number.isFinite(ts) ? ts : Date.now());
+      const pad = (value, width = 2) => String(value).padStart(width, '0');
+      const base = `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+      const digits = TIME_PRECISION_DIGITS[eventTimePrecision] || 0;
+      if (!digits) return base;
+      return `${base}.${pad(date.getMilliseconds(), 3).slice(0, digits)}`;
+    }
+
+    function setChip(chip, strongText, value, state, valueClass = '') {
+      chip.className = `chip ${state || ''}`.trim();
+      chip.innerHTML = `<strong>${escapeHtml(t(strongText))}</strong> <span class="chip-value ${escapeHtml(valueClass)}">${escapeHtml(t(value))}</span>`;
+    }
+
+    function updateStatus() {
+      const bleConnected = Boolean(bleDevice?.gatt?.connected && bleCharacteristic);
+      const serialConnected = Boolean(serialPort && serialWriter);
+      setChip(els.bleDeviceChip, 'BLE 设备', bleDevice?.name || '未选择', bleDevice ? '' : 'bad');
+      setChip(els.bleStatusChip, 'BLE', bleConnected ? '已连接' : '未连接', bleConnected ? 'ok' : 'bad');
+      setChip(els.notifyStatusChip, 'Notify', bleNotifyOpen ? '已打开' : '未打开', bleNotifyOpen ? 'ok' : 'bad');
+      setChip(els.serialStatusChip, 'UART0', serialConnected ? '已连接' : '未连接', serialConnected ? 'ok' : 'bad');
+      setChip(els.currentPageChip, '当前页面', getCurrentPageName(), appState.currentPage ? 'ok' : 'warn', getPageStateClass(appState.currentPage));
+      setChip(els.eventCountChip, '事件数', String(events.length), '');
+
+      els.currentPageText.textContent = getCurrentPageName();
+      els.currentPageText.className = `state-text ${getPageStateClass(appState.currentPage)}`;
+      els.roastingStateText.textContent = t(appState.roastingRunning ? '运行中' : '未运行');
+      els.roastingStateText.className = `state-text ${appState.roastingRunning ? 'state-ok' : ''}`;
+      els.agtronStateText.textContent = t(appState.agtronRunning ? '运行中' : '未运行');
+      els.agtronStateText.className = `state-text ${appState.agtronRunning ? 'state-ok' : ''}`;
+      updateEventCounts();
+      els.bleNotifyBtn.disabled = !bleDevice?.gatt?.connected;
+      els.bleDisconnectBtn.disabled = !bleDevice?.gatt?.connected;
+      els.serialConnectBtn.disabled = serialConnected;
+      els.serialDisconnectBtn.disabled = !serialPort;
+      updateHomeBackAvailability();
+      updateCommandAvailability();
+    }
+
+    function appendLog(target, message) {
+      target.textContent += `[${nowTime()}] ${message}\n`;
+      target.scrollTop = target.scrollHeight;
+    }
+
+    function getCurrentPageName() {
+      return t(PAGE_NAMES[appState.currentPage] || '未知');
+    }
+
+    function getPageStateClass(pageId) {
+      if (!pageId) return 'state-warn';
+      if (pageId.includes('ROASTING')) return 'state-roasting';
+      if (pageId.includes('AGTRON')) return 'state-agtron';
+      if (pageId.includes('ZEROING')) return 'state-zeroing';
+      if (pageId.includes('SETTING') || pageId.includes('ABOUT')) return 'state-setting';
+      if (pageId.includes('HISTORY')) return 'state-history';
+      return 'state-ok';
+    }
+
+    function transportTagClass(transport) {
+      if (transport === 'BLE') return 'ble';
+      if (transport === 'UART0') return 'uart';
+      return '';
+    }
+
+    function updateEventCounts() {
+      if (els.bleEventCountText) {
+        els.bleEventCountText.textContent = unitText(events.filter((row) => row.transport === 'BLE').length, '条');
+      }
+      if (els.serialEventCountText) {
+        els.serialEventCountText.textContent = unitText(events.filter((row) => row.transport === 'UART0').length, '条');
+      }
+      if (els.dataValueCountText) {
+        els.dataValueCountText.textContent = dataValues.length ? t('最新') : unitText(0, '个');
+      }
+    }
+
+    function updateEventViewMode() {
+      const isDual = els.eventViewModeSelect?.value === 'dual';
+      els.eventTimelineWrap?.classList.toggle('hidden', isDual);
+      els.eventDualWrap?.classList.toggle('hidden', !isDual);
+    }
+
+    // 切换事件 / 数据包的时间精度后，按新精度重画两张表
+    function applyEventTimePrecision() {
+      const value = els.eventTimePrecisionSelect?.value || 'sec';
+      eventTimePrecision = TIME_PRECISION_DIGITS[value] === undefined ? 'sec' : value;
+      renderAllDynamic();
+    }
+
+    function toggleAgtronPanel() {
+      const collapsed = !els.agtronValueRail.classList.contains('collapsed');
+      els.agtronValueRail.classList.toggle('collapsed', collapsed);
+      els.agtronPanelToggleBtn.textContent = collapsed ? t('展开') : t('收起');
+    }
+
+    function toggleRoastNodePanel() {
+      const collapsed = !els.roastNodeValueRail.classList.contains('collapsed');
+      els.roastNodeValueRail.classList.toggle('collapsed', collapsed);
+      els.roastNodeToggleBtn.textContent = collapsed ? t('展开') : t('收起');
+    }
+
+    function getRequiredPageReason(requiredPage) {
+      if (!requiredPage) return '';
+      const requiredName = t(PAGE_NAMES[requiredPage] || requiredPage);
+      if (!appState.currentPage) return tpl('等待设备上报当前页面；需要先进入：{page}', { page: requiredName });
+      if (appState.currentPage !== requiredPage) return tpl('需要先进入：{page}', { page: requiredName });
+      return '';
+    }
+
+    function getCommandBlockReason(command, options = {}) {
+      const normalized = String(command || '').trim();
+      const isRunning = appState.roastingRunning || appState.agtronRunning;
+      const requiredPage = options.requiredPage || COMMAND_PAGE_REQUIREMENTS[normalized] || '';
+      const targetPage = COMMAND_TARGET_PAGES[normalized];
+
+      if (!normalized) return t('命令不能为空。');
+
+      if (targetPage && appState.currentPage === targetPage) {
+        return tpl('当前已经在：{page}', { page: t(PAGE_NAMES[targetPage] || targetPage) });
+      }
+
+      if (options.blockWhenRunning && isRunning) {
+        return t('采集运行中，为避免设备状态冲突已禁用');
+      }
+
+      if (normalized === 'NEXT:PAGE.HISTORY' && isRunning) {
+        return t('当前有采集正在运行，请先停止烘焙或 Agtron');
+      }
+
+      if (normalized === 'NEXT:PAGE.BACK') {
+        if (isRunning) return t('当前有采集正在运行，请先停止烘焙或 Agtron');
+        if (!appState.currentPage) return t('等待设备上报当前页面后再返回');
+      }
+
+      if (normalized === 'NEXT:PAGE.AGTRON_LIVE' && appState.roastingRunning) {
+        return t('烘焙运行中不建议跳转 Agtron 页面，请先停止烘焙');
+      }
+
+      if (normalized === 'NEXT:PAGE.ROASTING_LIVE' && appState.agtronRunning) {
+        return t('Agtron 运行中不建议跳转烘焙页面，请先停止 Agtron');
+      }
+
+      if (normalized === 'NEXT:PAGE.ZEROING_CONFIRM' && isRunning) {
+        return t('采集运行中不建议进入调零，请先停止烘焙或 Agtron');
+      }
+
+      if (normalized === 'NEXT:ROASTING.START') {
+        if (appState.roastingRunning) return t('烘焙已在运行');
+        if (appState.agtronRunning) return t('Agtron 运行中，请先停止 Agtron');
+      }
+
+      if (normalized === 'NEXT:AGTRON.START') {
+        if (appState.agtronRunning) return t('Agtron 已在运行');
+        if (appState.roastingRunning) return t('烘焙运行中，请先停止烘焙');
+      }
+
+      if (normalized === 'NEXT:ROASTING.STOP' && !appState.roastingRunning) {
+        return t('烘焙未运行');
+      }
+
+      if (normalized === 'NEXT:AGTRON.STOP' && !appState.agtronRunning) {
+        return t('Agtron 未运行');
+      }
+
+      return getRequiredPageReason(requiredPage);
+    }
+
+    function getHomeBackReason() {
+      const isRunning = appState.roastingRunning || appState.agtronRunning;
+      if (isRunning) return t('采集运行中，请先停止烘焙或 Agtron');
+      return '';
+    }
+
+    function updateHomeBackAvailability() {
+      if (!els.homeBackBtn) return;
+      const reason = getHomeBackReason();
+      els.homeBackBtn.disabled = Boolean(reason);
+      els.homeBackBtn.title = reason || t('连续发送返回命令，直到回到顶层主页');
+    }
+
+    function getHomeBackSteps() {
+      if (!appState.currentPage) return 4;
+      return PAGE_BACK_STEPS_TO_HOME[appState.currentPage] || 3;
+    }
+
+    function delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function returnToHome() {
+      const reason = getHomeBackReason();
+      if (reason) {
+        alert(reason);
+        return;
+      }
+
+      const steps = getHomeBackSteps();
+      for (let index = 0; index < steps; index += 1) {
+        await sendCommand('NEXT:PAGE.BACK', { skipValidation: true });
+        await delay(180);
+      }
+    }
+
+    function updateCommandAvailability() {
+      document.querySelectorAll('button[data-cmd]').forEach((button) => {
+        const cmd = button.dataset.cmd;
+        const requiredPage = button.dataset.requiresPage;
+        const blockWhenRunning = button.dataset.blockWhenRunning === 'true';
+        let reason = getCommandBlockReason(cmd, { requiredPage, blockWhenRunning });
+        let disabled = Boolean(reason);
+
+        if (els.allowUnsafeCheck?.checked) {
+          disabled = false;
+          reason = reason ? tpl('开发者已允许绕过：{reason}', { reason }) : '';
+        }
+
+        button.disabled = disabled;
+        button.title = reason || '';
+      });
+    }
+
+    function bytesToHex(bytes) {
+      return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+    }
+
+    function concatBytes(left, right) {
+      const merged = new Uint8Array(left.length + right.length);
+      merged.set(left, 0);
+      merged.set(right, left.length);
+      return merged;
+    }
+
+    function calcCrc16Modbus(bytes) {
+      let crc = 0xFFFF;
+      for (const byte of bytes) {
+        crc ^= byte;
+        for (let bit = 0; bit < 8; bit += 1) {
+          crc = (crc & 0x0001) ? ((crc >> 1) ^ 0xA001) : (crc >> 1);
+        }
+      }
+      return crc & 0xFFFF;
+    }
+
+    function ensureLineEnding(command) {
+      const trimmed = command.trim();
+      if (!trimmed) return '';
+      return trimmed.endsWith('\n') ? trimmed : `${trimmed}\r\n`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function handleIncomingBytes(transport, bytes) {
+      // 实时帧只吃掉自己那一段字节；帧外剩下的原始字节必须还给文本路径，否则
+      // 一旦串口把 EVT 行拆成小块（小于帧头判断长度）就会整段丢失。
+      const drained = drainRoastingLiveFrames(transport, bytes);
+      const rest = drained.leftover;
+      if (rest.length === 0) return;
+
+      const hex = bytesToHex(rest);
+      const meaningfulBytes = trimTrailingZeros(rest);
+      const text = textDecoder.decode(meaningfulBytes);
+
+      if (isLikelyAsciiLine(meaningfulBytes)) {
+        parseIncomingText(transport, text, hex);
+        return;
+      }
+
+      if (isAgtronDataText(text)) {
+        addDataPacket(transport, buildDataPacketInfo('文本数据', meaningfulBytes.length, text, hex));
+        return;
+      }
+
+      appendLog(
+        transport === 'BLE' ? els.bleLog : els.serialLog,
+        tpl('SKIP 用户区未显示：非 Agtron 数据包，{bytes} 字节', { bytes: rest.length }),
+      );
+    }
+
+    function getBinaryBuffer(transport) {
+      return transport === 'BLE' ? bleBinaryBuffer : serialBinaryBuffer;
+    }
+
+    function setBinaryBuffer(transport, value) {
+      if (transport === 'BLE') {
+        bleBinaryBuffer = value;
+      } else {
+        serialBinaryBuffer = value;
+      }
+    }
+
+    function drainRoastingLiveFrames(transport, incomingBytes) {
+      let buffer = concatBytes(getBinaryBuffer(transport), incomingBytes);
+      let parsedAny = false;
+      let leftover = new Uint8Array(0);
+
+      // 帧外的字节不能丢：先攒起来，最后原样交回文本路径。
+      const handBackAsText = (chunk) => {
+        const textBytes = chunk.filter(isAsciiTextByte);
+        if (textBytes.length > 0) leftover = concatBytes(leftover, textBytes);
+      };
+
+      while (buffer.length >= 7) {
+        const start = findFrameHead(buffer);
+        if (start < 0) {
+          const headTail = buffer[buffer.length - 1] === 0xAA ? 1 : 0;
+          handBackAsText(buffer.slice(0, buffer.length - headTail));
+          buffer = buffer.slice(buffer.length - headTail);
+          break;
+        }
+
+        if (start > 0) {
+          handBackAsText(buffer.slice(0, start));
+          buffer = buffer.slice(start);
+        }
+
+        if (buffer.length < 3) break;
+
+        const payloadLen = buffer[2];
+        const frameLen = 2 + 1 + payloadLen + 2 + 2;
+        if (payloadLen !== 20) {
+          buffer = buffer.slice(1);
+          continue;
+        }
+
+        if (buffer.length < frameLen) break;
+
+        if (buffer[frameLen - 2] !== 0x53 || buffer[frameLen - 1] !== 0x42) {
+          buffer = buffer.slice(1);
+          continue;
+        }
+
+        const crcExpected = buffer[3 + payloadLen] | (buffer[3 + payloadLen + 1] << 8);
+        const crcActual = calcCrc16Modbus(buffer.slice(2, 3 + payloadLen));
+        const frame = buffer.slice(0, frameLen);
+        buffer = buffer.slice(frameLen);
+
+        if (crcActual !== crcExpected) {
+          appendLog(
+            transport === 'BLE' ? els.bleLog : els.serialLog,
+            tpl('WARN 实时帧 CRC 错误：expected {expected}, actual {actual}', {
+              expected: crcExpected.toString(16),
+              actual: crcActual.toString(16),
+            }),
+          );
+          continue;
+        }
+
+        const parsed = parseRoastingLiveFrame(frame);
+        if (parsed) {
+          addDataPacket(transport, buildRoastingLivePacketInfo(frame, parsed));
+          curveRecordLiveFrame(parsed);
+          parsedAny = true;
+        }
+      }
+
+      if (buffer.length > 0 && !looksLikePartialFrame(buffer)) {
+        handBackAsText(buffer);
+        buffer = new Uint8Array(0);
+      }
+
+      setBinaryBuffer(transport, buffer);
+      return { parsedAny, leftover };
+    }
+
+    function findFrameHead(bytes) {
+      for (let i = 0; i < bytes.length - 1; i += 1) {
+        if (bytes[i] === 0xAA && bytes[i + 1] === 0x55) return i;
+      }
+      return -1;
+    }
+
+    // 留住尚未收齐的实时帧开头（0xAA 0x55 ...），其余字节一律按文本处理。
+    function looksLikePartialFrame(bytes) {
+      if (bytes.length === 0 || bytes[0] !== 0xAA) return false;
+      return bytes.length === 1 || bytes[1] === 0x55;
+    }
+
+    function parseRoastingLiveFrame(frame) {
+      if (frame.length !== 27 || frame[0] !== 0xAA || frame[1] !== 0x55 || frame[2] !== 20) {
+        return null;
+      }
+
+      const view = new DataView(frame.buffer, frame.byteOffset + 3, 20);
+      return {
+        curveAgtron: view.getFloat32(0, true),
+        voice: view.getUint8(4),
+        agtronRate: view.getFloat32(5, true),
+        stableAgtron: view.getFloat32(9, true),
+        distance: view.getUint16(13, true),
+        yellowTime: view.getUint16(15, true),
+        yellowFlag: view.getUint8(17),
+        recordNo: view.getUint16(18, true),
+      };
+    }
+
+    function trimTrailingZeros(bytes) {
+      let end = bytes.length;
+      while (end > 0 && bytes[end - 1] === 0) end -= 1;
+      return bytes.slice(0, end);
+    }
+
+    function isLikelyAsciiLine(bytes) {
+      if (bytes.length === 0) return false;
+      return Array.from(bytes).every(isAsciiTextByte);
+    }
+
+    function isAsciiTextByte(byte) {
+      return byte === 9 || byte === 10 || byte === 13 || (byte >= 32 && byte <= 126);
+    }
+
+    function isAgtronDataText(text) {
+      return /Y_time|Y_agtron|FC_time|FC_agtron|SC_time|SC_agtron|D_time|D_agtron|\bAgtron\b|\bagtron\b/i.test(text || '');
+    }
+
+    function summarizeTextData(text) {
+      return text.replace(/\s+/g, ' ').trim().slice(0, 220);
+    }
+
+    function parseIncomingText(transport, text, rawHex) {
+      if (!text) return;
+      if (transport === 'BLE') {
+        bleLineBuffer += text;
+        bleLineBuffer = drainLineBuffer(transport, bleLineBuffer, rawHex);
+      } else {
+        serialLineBuffer += text;
+        serialLineBuffer = drainLineBuffer(transport, serialLineBuffer, rawHex);
+      }
+    }
+
+    function drainLineBuffer(transport, buffer, rawHex) {
+      let cursor = 0;
+      while (true) {
+        const lfIndex = buffer.indexOf('\n', cursor);
+        if (lfIndex < 0) break;
+
+        const rawLine = buffer.slice(cursor, lfIndex).replace(/\r$/, '');
+        cursor = lfIndex + 1;
+
+        if (rawLine.length > 0) {
+          addParsedLine(transport, rawLine, rawHex);
+        }
+      }
+      return buffer.slice(cursor);
+    }
+
+    function addParsedLine(transport, line, rawHex) {
+      const parsed = parseEventLine(line);
+      if (!parsed) {
+        if (!isAgtronDataText(line)) {
+          appendLog(
+            transport === 'BLE' ? els.bleLog : els.serialLog,
+            tpl('SKIP 用户区未显示：非 Agtron 文本 {line}', { line: JSON.stringify(line) }),
+          );
+          return;
+        }
+        addDataPacket(transport, buildDataPacketInfo(classifyTextPacket(line), line.length, line, rawHex || ''));
+        return;
+      }
+
+      const row = {
+        ts: Date.now(),
+        transport,
+        seq: parsed.seq,
+        source: parsed.source,
+        sourceName: SOURCE_NAMES[parsed.source] || parsed.source,
+        eventId: parsed.eventId,
+        eventName: EVENT_NAMES[parsed.eventId] || parsed.eventId,
+        param: parsed.param,
+        detail: buildEventDetail(parsed),
+        parsed,
+        raw: line,
+        hex: rawHex || '',
+      };
+      events.unshift(row);
+      updateStateFromEvent(row);
+      renderEventRow(row, els.eventTableBody, true);
+      renderDualEventCard(row);
+      updateStatus();
+    }
+
+    function classifyTextPacket(line) {
+      if (isAgtronDataText(line)) return 'Agtron 文本数据';
+      return '非 Agtron 文本';
+    }
+
+    function buildEventDetail(parsed) {
+      const parts = [];
+      if (parsed.param) parts.push(tpl('参数：{param}', { param: parsed.param }));
+      if (parsed.eventId.startsWith('PAGE_ENTER_')) parts.push(tpl('进入：{page}', { page: t(PAGE_NAMES[parsed.eventId] || parsed.eventId) }));
+      if (parsed.eventId === 'COMMAND_OK') parts.push(t('设备已接受上位机命令'));
+      if (parsed.eventId === 'COMMAND_REJECTED') parts.push(t('设备拒绝执行该命令'));
+      if (parsed.eventId === 'COMMAND_UNKNOWN') parts.push(t('设备不认识该命令'));
+      if (parsed.eventId === 'COMMAND_PARAM_ERROR') parts.push(t('命令参数不正确'));
+      if (parsed.eventId === 'PHYSICAL_KEY') {
+        if (parsed.param === 'SHORT_PRESS') parts.push(t('实体按键短按'));
+        else if (parsed.param) parts.push(tpl('实体按键：{param}', { param: parsed.param }));
+      }
+      return parts.join('；') || t('已收到');
+    }
+
+    function updateStateFromEvent(row) {
+      if (row.eventId.startsWith('PAGE_ENTER_')) {
+        appState.currentPage = row.eventId;
+      }
+      if (row.eventId === 'ROASTING_START') {
+        appState.roastingRunning = true;
+        curveReset();
+      }
+      if (row.eventId === 'ROASTING_STOP') appState.roastingRunning = false;
+      if (row.eventId === 'AGTRON_START') appState.agtronRunning = true;
+      if (row.eventId === 'AGTRON_STOP') appState.agtronRunning = false;
+    }
+
+    function parseEventLine(line) {
+      const match = line.match(/^EVT:(\d+),([^,]+),([^,\r\n]+)(?:,(.*))?$/);
+      if (!match) return null;
+      return {
+        seq: match[1],
+        source: match[2],
+        eventId: match[3],
+        param: match[4] ?? '',
+      };
+    }
+
+    function renderEventRow(row, tbody, showTransport, prepend = true) {
+      if (!tbody) return;
+      const tr = document.createElement('tr');
+      const transportCell = showTransport
+        ? `<td><span class="tag ${transportTagClass(row.transport)}">${escapeHtml(row.transport)}</span></td>`
+        : '';
+      const detail = buildEventDetail(row.parsed);
+      tr.innerHTML = `
+        <td>${escapeHtml(formatTimeStamp(row.ts))}</td>
+        ${transportCell}
+        <td>${escapeHtml(t(row.sourceName))}</td>
+        <td>${escapeHtml(t(row.eventName))}</td>
+        <td>${escapeHtml(detail)}</td>
+      `;
+      if (prepend) tbody.prepend(tr);
+      else tbody.append(tr);
+    }
+
+    function renderDualEventCard(row, prepend = true) {
+      let list = null;
+      if (row.transport === 'BLE') list = els.bleEventList;
+      if (row.transport === 'UART0') list = els.serialEventList;
+      if (!list) return;
+
+      removeEmptyStream(list);
+      const card = document.createElement('article');
+      card.className = 'event-card';
+      card.innerHTML = `
+        <div class="event-card-head">
+          <span>${escapeHtml(formatTimeStamp(row.ts))}</span>
+          <span class="tag ${transportTagClass(row.transport)}">${escapeHtml(row.transport)}</span>
+        </div>
+        <div class="event-card-title">${escapeHtml(t(row.eventName))}</div>
+        <div class="event-card-detail">
+          ${escapeHtml(t(row.sourceName))}
+          ${row.param ? ` · ${escapeHtml(tpl('参数：{param}', { param: row.param }))}` : ''}
+          <br />
+          <span class="muted">${escapeHtml(row.eventId)}</span>
+        </div>
+      `;
+      if (prepend) list.prepend(card);
+      else list.append(card);
+    }
+
+    function removeEmptyStream(container) {
+      container.querySelectorAll('.empty-stream').forEach((node) => node.remove());
+    }
+
+    function buildDataPacketInfo(type, length, text, rawHex) {
+      const metrics = extractDataMetrics(text);
+      const dataClass = getDataKindClass(type, rawHex, metrics);
+      const friendlyType = getFriendlyDataType(type, rawHex, metrics);
+      const summary = buildFriendlyDataSummary(type, text, rawHex, metrics);
+
+      return {
+        type: friendlyType,
+        rawType: type,
+        length,
+        summary,
+        text: text || '',
+        hex: rawHex || '',
+        metrics,
+        dataClass,
+      };
+    }
+
+    function buildRoastingLivePacketInfo(frame, parsed) {
+      const metrics = [
+        { key: 'curve_agtron', label: '当前 Agtron', value: formatNumber(parsed.curveAgtron, 1), colorClass: 'agtron' },
+        { key: 'agtron_rate', label: 'Agtron ROR', value: formatNumber(parsed.agtronRate, 2), colorClass: 'ror' },
+        { key: 'weighted_median_mean_agtron', label: '稳定 Agtron', value: formatNumber(parsed.stableAgtron, 1), colorClass: 'agtron' },
+        { key: 'voice', label: '音频强度', value: String(parsed.voice), colorClass: 'audio' },
+        { key: 'distance', label: '距离', value: `${parsed.distance} mm`, colorClass: 'distance' },
+        { key: 'time_yellow', label: '烘焙时间', value: formatSeconds(parsed.yellowTime), colorClass: 'yellow' },
+        { key: 'flag_yellow', label: '黄点状态', value: parsed.yellowFlag ? '已触发' : '未触发', colorClass: 'yellow' },
+        { key: 'cnt_record', label: '记录序号', value: String(parsed.recordNo), colorClass: 'record' },
+      ];
+
+      return {
+        type: 'Agtron 实时数据',
+        rawType: 'Roasting Live 二进制帧',
+        length: frame.length,
+        summary: '已解析 NEXT 实时二进制帧',
+        text: '',
+        hex: bytesToHex(frame),
+        metrics,
+        dataClass: 'agtron',
+      };
+    }
+
+    function formatNumber(value, digits) {
+      if (!Number.isFinite(value)) return '--';
+      return value.toFixed(digits);
+    }
+
+    function formatSeconds(seconds) {
+      const value = Number(seconds || 0);
+      const mm = String(Math.floor(value / 60)).padStart(2, '0');
+      const ss = String(value % 60).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
+
+    function extractDataMetrics(text) {
+      const metrics = [];
+      const source = String(text || '');
+      const agtronLabels = {
+        y_time: '黄点时间',
+        y_agtron: '黄点 Agtron',
+        fc_time: '一爆时间',
+        fc_agtron: '一爆 Agtron',
+        sc_time: '二爆时间',
+        sc_agtron: '二爆 Agtron',
+        d_time: '下豆时间',
+        d_agtron: '下豆 Agtron',
+        agtron: 'Agtron',
+      };
+      const seen = new Set();
+      const keyValuePattern = /([A-Za-z][A-Za-z0-9_]*)\s*[:=]\s*(\d{1,2}:\d{2}(?::\d{2})?|-?\d+(?:\.\d+)?|on|off|true|false)/gi;
+      let match = null;
+
+      while ((match = keyValuePattern.exec(source)) !== null) {
+        const key = match[1];
+        const value = match[2];
+        const normalizedKey = key.toLowerCase();
+        if (!Object.prototype.hasOwnProperty.call(agtronLabels, normalizedKey)) continue;
+        const dedupeKey = `${normalizedKey}:${value}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+        metrics.push({
+          key,
+          label: agtronLabels[normalizedKey],
+          value,
+          colorClass: metricColorClass(normalizedKey),
+        });
+      }
+
+      return metrics;
+    }
+
+    function metricColorClass(key) {
+      const normalizedKey = String(key || '').toLowerCase();
+      if (normalizedKey.includes('ror') || normalizedKey.includes('rate')) return 'ror';
+      if (normalizedKey.includes('voice') || normalizedKey.includes('audio')) return 'audio';
+      if (normalizedKey.includes('distance')) return 'distance';
+      if (normalizedKey.includes('yellow') || normalizedKey === 'y_time' || normalizedKey === 'y_agtron') return 'yellow';
+      if (normalizedKey.includes('record') || normalizedKey.includes('cnt')) return 'record';
+      return 'agtron';
+    }
+
+    function getFriendlyDataType(type, rawHex, metrics) {
+      if (metrics.some((item) => item.label.includes('时间'))) return 'Agtron 烘焙节点';
+      return 'Agtron 数据';
+    }
+
+    function getDataKindClass(type, rawHex, metrics) {
+      const friendlyType = getFriendlyDataType(type, rawHex, metrics);
+      if (friendlyType.includes('烘焙节点')) return 'roasting';
+      return 'agtron';
+    }
+
+    function buildFriendlyDataSummary(type, text, rawHex, metrics) {
+      if (metrics.length > 0) return '已解析出关键值';
+      if (text) return summarizeTextData(text);
+      return '收到 Agtron 数据';
+    }
+
+    function addDataPacket(transport, info) {
+      const row = {
+        ts: Date.now(),
+        transport,
+        ...info,
+      };
+      dataPackets.unshift(row);
+      updateDataPacketCount();
+      renderDataRow(row);
+      if (row.type === 'Agtron 烘焙节点') {
+        addRoastNodeValues(row);
+        curveRecordNodes(row.metrics);
+      } else {
+        addDataValues(row);
+      }
+      updateStatus();
+    }
+
+    function updateDataPacketCount() {
+      if (!els.dataPacketCountText) return;
+      els.dataPacketCountText.textContent = unitText(dataPackets.length, '条');
+    }
+
+    function renderDataRow(row, prepend = true) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(formatTimeStamp(row.ts))}</td>
+        <td><span class="tag ${transportTagClass(row.transport)}">${escapeHtml(row.transport)}</span></td>
+        <td><span class="data-kind ${escapeHtml(row.dataClass)}">${escapeHtml(t(row.type))}</span></td>
+        <td>
+          ${renderMetricPills(row.metrics)}
+          <div class="compact-summary">${escapeHtml(t(row.summary))} · ${escapeHtml(unitText(row.length, '字节'))}</div>
+          <details class="raw-details">
+            <summary>${escapeHtml(t('查看原始内容'))}</summary>
+            ${row.text ? `<code>${escapeHtml(row.text)}</code>` : ''}
+            ${row.hex ? `<code>${escapeHtml(row.hex)}</code>` : ''}
+          </details>
+        </td>
+      `;
+      if (prepend) els.dataTableBody.prepend(tr);
+      else els.dataTableBody.append(tr);
+    }
+
+    function renderMetricPills(metrics) {
+      if (!metrics?.length) return '';
+      return `<div class="metric-list">${metrics.map((item) => (
+        `<span class="metric-pill ${escapeHtml(item.colorClass || 'agtron')}"><span class="metric-name">${escapeHtml(t(item.label))}</span> <strong>${escapeHtml(t(item.value))}</strong></span>`
+      )).join('')}</div>`;
+    }
+
+    function addDataValues(packet) {
+      if (!packet.metrics?.length) return;
+      dataValues.length = 0;
+      packet.metrics.forEach((metric) => dataValues.push({
+        time: formatTimeStamp(packet.ts),
+        transport: packet.transport,
+        type: packet.type,
+        label: metric.label,
+        value: metric.value,
+        colorClass: metric.colorClass || 'agtron',
+      }));
+      appState.lastDataPacket = packet;
+      renderCurrentDataValues(packet);
+    }
+
+    function addRoastNodeValues(packet) {
+      if (!packet.metrics?.length) return;
+      roastNodeValues.length = 0;
+      packet.metrics.forEach((metric) => roastNodeValues.push({
+        time: formatTimeStamp(packet.ts),
+        transport: packet.transport,
+        type: packet.type,
+        label: metric.label,
+        value: metric.value,
+        colorClass: metric.colorClass || 'roasting',
+      }));
+      appState.lastRoastNodePacket = packet;
+      renderCurrentRoastNodeValues(packet);
+    }
+
+    function renderCurrentDataValues(packet) {
+      if (!els.dataValueList) return;
+      els.dataValueList.innerHTML = '';
+      if (!packet) {
+        els.dataValueList.innerHTML = `<div class="empty-stream">${escapeHtml(t('收到 Agtron 数值后会显示在这里'))}</div>`;
+        return;
+      }
+      const card = document.createElement('article');
+      card.className = 'value-current-card';
+      card.innerHTML = `
+        <div class="value-current-head">
+          <span class="value-current-title">${escapeHtml(t('当前收到的数据'))}</span>
+          <span>
+            ${escapeHtml(formatTimeStamp(packet.ts))} ·
+            <span class="tag ${transportTagClass(packet.transport)}">${escapeHtml(packet.transport)}</span>
+          </span>
+        </div>
+        <div class="value-current-grid">
+          ${packet.metrics.map((metric) => `
+            <div class="value-card ${escapeHtml(metric.colorClass || 'agtron')}">
+              <div class="value-card-name">${escapeHtml(t(metric.label))}</div>
+              <div class="value-card-value">${escapeHtml(t(metric.value))}</div>
+              <div class="value-card-meta">${escapeHtml(t(packet.type))}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      els.dataValueList.append(card);
+    }
+
+    function renderCurrentRoastNodeValues(packet) {
+      if (!els.roastNodeValueList) return;
+      els.roastNodeValueList.innerHTML = '';
+      if (!packet) {
+        els.roastNodeValueList.innerHTML = `<div class="empty-stream">${escapeHtml(t('收到烘焙节点后会显示在这里'))}</div>`;
+        if (els.roastNodeCountText) els.roastNodeCountText.textContent = unitText(0, '个');
+        return;
+      }
+      const card = document.createElement('article');
+      card.className = 'value-current-card';
+      card.innerHTML = `
+        <div class="value-current-head">
+          <span class="value-current-title">${escapeHtml(t('当前收到的烘焙节点'))}</span>
+          <span>
+            ${escapeHtml(formatTimeStamp(packet.ts))} ·
+            <span class="tag ${transportTagClass(packet.transport)}">${escapeHtml(packet.transport)}</span>
+          </span>
+        </div>
+        <div class="value-current-grid">
+          ${packet.metrics.map((metric) => `
+            <div class="value-card ${escapeHtml(metric.colorClass || 'roasting')}">
+              <div class="value-card-name">${escapeHtml(t(metric.label))}</div>
+              <div class="value-card-value">${escapeHtml(t(metric.value))}</div>
+              <div class="value-card-meta">${escapeHtml(t(packet.type))}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      els.roastNodeValueList.append(card);
+      if (els.roastNodeCountText) {
+        els.roastNodeCountText.textContent = t('最新');
+      }
+    }
+
+    function renderAllEvents() {
+      if (!els.eventTableBody) return;
+      els.eventTableBody.innerHTML = '';
+      els.bleEventList.innerHTML = '';
+      els.serialEventList.innerHTML = '';
+
+      if (!events.length) {
+        els.bleEventList.innerHTML = `<div class="empty-stream">${escapeHtml(t('还没有收到蓝牙事件'))}</div>`;
+        els.serialEventList.innerHTML = `<div class="empty-stream">${escapeHtml(t('还没有收到串口事件'))}</div>`;
+      } else {
+        events.forEach((row) => {
+          renderEventRow(row, els.eventTableBody, true, false);
+          renderDualEventCard(row, false);
+        });
+      }
+      updateEventCounts();
+    }
+
+    function renderAllDataPackets() {
+      if (!els.dataTableBody) return;
+      els.dataTableBody.innerHTML = '';
+      dataPackets.forEach((row) => renderDataRow(row, false));
+      updateDataPacketCount();
+    }
+
+    function renderAllDynamic() {
+      renderAllEvents();
+      renderAllDataPackets();
+      renderCurrentDataValues(appState.lastDataPacket || null);
+      renderCurrentRoastNodeValues(appState.lastRoastNodePacket || null);
+    }
+
+    function simulateReceiveLine(transport, line) {
+      const payload = `${line}\r\n`;
+      const bytes = textEncoder.encode(payload);
+      const logTarget = transport === 'BLE' ? els.bleLog : els.serialLog;
+      appendLog(logTarget, `SIM RX ${bytesToHex(bytes)}    ${JSON.stringify(payload)}`);
+      handleIncomingBytes(transport, bytes);
+    }
+
+    function simulateEventPair(eventId, param = '') {
+      const suffix = param ? `,${param}` : '';
+      const seq = simulateSeq++;
+      simulateReceiveLine('BLE', `EVT:${seq},TOUCH,${eventId}${suffix}`);
+      simulateReceiveLine('UART0', `EVT:${seq},TOUCH,${eventId}${suffix}`);
+    }
+
+    function buildSimulatedRoastingLiveFrame(tick) {
+      const payloadLen = 20;
+      const frame = new Uint8Array(2 + 1 + payloadLen + 2 + 2);
+      const view = new DataView(frame.buffer);
+      const curveAgtron = 86 - tick * 0.72 + Math.random() * 1.8;
+      const agtronRate = Math.max(0, 7.5 - tick * 0.18 + Math.random() * 0.8);
+      const stableAgtron = curveAgtron - 0.5 + Math.random();
+      const distance = 120 + Math.round(Math.sin(tick / 3) * 8);
+      const yellowTime = tick;
+      const yellowFlag = tick >= 4 ? 1 : 0;
+
+      frame[0] = 0xAA;
+      frame[1] = 0x55;
+      frame[2] = payloadLen;
+      view.setFloat32(3, curveAgtron, true);
+      view.setUint8(7, Math.min(255, Math.round(18 + Math.random() * 40)));
+      view.setFloat32(8, agtronRate, true);
+      view.setFloat32(12, stableAgtron, true);
+      view.setUint16(16, distance, true);
+      view.setUint16(18, yellowTime, true);
+      view.setUint8(20, yellowFlag);
+      view.setUint16(21, tick, true);
+
+      const crc = calcCrc16Modbus(frame.slice(2, 3 + payloadLen));
+      frame[23] = crc & 0xFF;
+      frame[24] = (crc >> 8) & 0xFF;
+      frame[25] = 0x53;
+      frame[26] = 0x42;
+      return frame;
+    }
+
+    function simulateReceiveBytes(transport, bytes) {
+      const logTarget = transport === 'BLE' ? els.bleLog : els.serialLog;
+      appendLog(logTarget, `SIM RX ${bytesToHex(bytes)}    [${t('Roasting Live 二进制帧')}]`);
+      handleIncomingBytes(transport, bytes);
+    }
+
+    function simulateRoastNodeSample() {
+      const t = simulateTick;
+      const nodeLine = [
+        `Y_time:${t >= 3 ? 3 : 0}`,
+        `Y_agtron:${(80 + t * 0.4).toFixed(1)}`,
+        `FC_time:${t >= 6 ? 6 : 0}`,
+        `FC_agtron:${(72 + t * 0.3).toFixed(1)}`,
+        `SC_time:${t >= 9 ? 9 : 0}`,
+        `SC_agtron:${(55 + t * 0.2).toFixed(1)}`,
+        `D_time:${t >= 12 ? 12 : 0}`,
+        `D_agtron:${(50 + t * 0.1).toFixed(1)}`,
+      ].join(',');
+      simulateReceiveLine('BLE', nodeLine);
+      simulateReceiveLine('UART0', nodeLine);
+    }
+
+    function simulateOnce() {
+      if (simulateTick === 0) {
+        simulateEventPair('PAGE_ENTER_ROASTING_LIVE');
+        simulateEventPair('ROASTING_START');
+      }
+      simulateTick += 1;
+      const frame = buildSimulatedRoastingLiveFrame(simulateTick);
+      simulateReceiveBytes('BLE', frame);
+      simulateReceiveBytes('UART0', frame);
+      if (simulateTick === 3 || simulateTick === 6 || simulateTick === 9 || simulateTick === 12) {
+        simulateRoastNodeSample();
+      }
+    }
+
+    function startSimulation() {
+      if (simulateTimer) return;
+      simulateOnce();
+      simulateTimer = window.setInterval(() => {
+        simulateOnce();
+        if (simulateTick >= 18) {
+          simulateEventPair('ROASTING_STOP');
+          stopSimulation();
+        }
+      }, 1000);
+      els.simulateLiveBtn.disabled = true;
+      els.stopSimulateBtn.disabled = false;
+    }
+
+    function stopSimulation() {
+      if (simulateTimer) {
+        window.clearInterval(simulateTimer);
+        simulateTimer = null;
+      }
+      els.simulateLiveBtn.disabled = false;
+      els.stopSimulateBtn.disabled = true;
+    }
+
+    async function connectBle() {
+      if (!navigator.bluetooth) {
+        alert(t('当前浏览器不支持 Web Bluetooth。建议使用 Chrome / Edge，并通过 HTTPS 或 localhost 打开。'));
+        return;
+      }
+
+      bleNotifyOpen = false;
+      updateStatus();
+
+      bleDevice = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: 'RoastSeeNEXT' }],
+        optionalServices: [NEXT_SERVICE_UUID],
+      });
+      bleDevice.addEventListener('gattserverdisconnected', onBleDisconnected);
+
+      await connectBleGattAndNotify();
+    }
+
+    async function connectBleGattAndNotify() {
+      if (!bleDevice) throw new Error(t('未选择 BLE 设备'));
+
+      appendLog(els.bleLog, tpl('连接设备：{name}', { name: bleDevice.name || '(unknown)' }));
+      bleServer = await bleDevice.gatt.connect();
+      const service = await bleServer.getPrimaryService(NEXT_SERVICE_UUID);
+      bleCharacteristic = await service.getCharacteristic(NEXT_CHAR_UUID);
+
+      await openBleNotify();
+      appendLog(els.bleLog, t('BLE 已连接，BB01 Notify 已打开'));
+      updateStatus();
+    }
+
+    async function openBleNotify() {
+      if (!bleCharacteristic) {
+        if (!bleDevice?.gatt?.connected) {
+          await connectBleGattAndNotify();
+          return;
+        }
+        throw new Error(t('BLE 特征未就绪'));
+      }
+
+      bleCharacteristic.removeEventListener('characteristicvaluechanged', onBleNotification);
+      bleCharacteristic.addEventListener('characteristicvaluechanged', onBleNotification);
+      await bleCharacteristic.startNotifications();
+      bleNotifyOpen = true;
+      updateStatus();
+    }
+
+    function onBleNotification(event) {
+      const bytes = new Uint8Array(event.target.value.buffer.slice(
+        event.target.value.byteOffset,
+        event.target.value.byteOffset + event.target.value.byteLength,
+      ));
+      const hex = bytesToHex(bytes);
+      const text = textDecoder.decode(trimTrailingZeros(bytes));
+      appendLog(els.bleLog, `RX ${hex}    ${JSON.stringify(text)}`);
+      handleIncomingBytes('BLE', bytes);
+    }
+
+    function onBleDisconnected() {
+      appendLog(els.bleLog, t('BLE 连接断开。重连后必须重新打开 Notify。'));
+      bleServer = null;
+      bleCharacteristic = null;
+      bleNotifyOpen = false;
+      updateStatus();
+    }
+
+    async function disconnectBle() {
+      if (bleDevice?.gatt?.connected) {
+        bleDevice.gatt.disconnect();
+      }
+      bleServer = null;
+      bleCharacteristic = null;
+      bleNotifyOpen = false;
+      updateStatus();
+    }
+
+    async function connectSerial() {
+      if (!navigator.serial) {
+        alert(t('当前浏览器不支持 Web Serial。建议使用 Chrome / Edge，并通过 HTTPS 或 localhost 打开。'));
+        return;
+      }
+
+      const selectedPort = await navigator.serial.requestPort();
+      try {
+        await selectedPort.open({
+          baudRate: Number(els.baudRateInput.value || 115200),
+          dataBits: 8,
+          stopBits: 1,
+          parity: 'none',
+          flowControl: 'none',
+        });
+
+        serialPort = selectedPort;
+        serialWriter = serialPort.writable.getWriter();
+        serialReadActive = true;
+        appendLog(els.serialLog, t('UART0 已连接'));
+        updateStatus();
+        readSerialLoop();
+      } catch (error) {
+        serialReadActive = false;
+        serialPort = null;
+        serialWriter = null;
+        try {
+          await selectedPort.close();
+        } catch (_) {
+          // Ignore close errors after a failed open.
+        }
+        const message = tpl('串口连接失败：{error}', { error: error.message || String(error) });
+        appendLog(els.serialLog, message);
+        throw new Error(message);
+      }
+    }
+
+    async function readSerialLoop() {
+      while (serialPort?.readable && serialReadActive) {
+        serialReader = serialPort.readable.getReader();
+        try {
+          while (serialReadActive) {
+            const { value, done } = await serialReader.read();
+            if (done) break;
+            if (!value) continue;
+
+            const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+            const hex = bytesToHex(bytes);
+            const text = textDecoder.decode(trimTrailingZeros(bytes));
+            appendLog(els.serialLog, `RX ${hex}    ${JSON.stringify(text)}`);
+            handleIncomingBytes('UART0', bytes);
+          }
+        } catch (error) {
+          appendLog(els.serialLog, tpl('串口读取异常：{error}', { error: error.message }));
+        } finally {
+          serialReader.releaseLock();
+          serialReader = null;
+        }
+      }
+    }
+
+    async function disconnectSerial() {
+      serialReadActive = false;
+
+      if (serialReader) {
+        try {
+          await serialReader.cancel();
+        } catch (error) {
+          appendLog(els.serialLog, tpl('取消读取失败：{error}', { error: error.message }));
+        }
+      }
+
+      if (serialWriter) {
+        try {
+          serialWriter.releaseLock();
+        } catch (error) {
+          appendLog(els.serialLog, tpl('释放写入器失败：{error}', { error: error.message }));
+        }
+        serialWriter = null;
+      }
+
+      if (serialPort) {
+        try {
+          await serialPort.close();
+          appendLog(els.serialLog, t('UART0 已断开'));
+        } catch (error) {
+          appendLog(els.serialLog, tpl('关闭串口失败：{error}', { error: error.message }));
+        }
+      }
+
+      serialPort = null;
+      updateStatus();
+    }
+
+    async function sendCommand(command, options = {}) {
+      const guard = options.skipValidation ? { ok: true, message: '' } : validateCommandBeforeSend(command);
+      if (!guard.ok) {
+        if (els.allowUnsafeCheck?.checked && confirm(`${guard.message}\n\n${t('开发者模式已允许绕过，仍然发送吗？')}`)) {
+          // continue
+        } else {
+          alert(guard.message);
+          return;
+        }
+      }
+
+      const payload = ensureLineEnding(command);
+      if (!payload) return;
+
+      const sendTargets = [];
+      if (els.sendBleCheck.checked) sendTargets.push('BLE');
+      if (els.sendSerialCheck.checked) sendTargets.push('UART0');
+
+      if (sendTargets.length === 0) {
+        alert(t('请至少选择一个发送目标：蓝牙或串口。'));
+        return;
+      }
+
+      const bytes = textEncoder.encode(payload);
+
+      if (sendTargets.includes('BLE')) {
+        await sendBle(bytes, payload);
+      }
+
+      if (sendTargets.includes('UART0')) {
+        await sendSerial(bytes, payload);
+      }
+    }
+
+    function validateCommandBeforeSend(command) {
+      const normalized = String(command || '').trim();
+      const reason = getCommandBlockReason(normalized);
+      return { ok: !reason, message: reason };
+    }
+
+    async function sendBle(bytes, payloadText) {
+      if (!bleCharacteristic || !bleDevice?.gatt?.connected) {
+        throw new Error(t('BLE 未连接'));
+      }
+
+      if (!bleNotifyOpen) {
+        await openBleNotify();
+      }
+
+      if (bleCharacteristic.writeValueWithResponse) {
+        await bleCharacteristic.writeValueWithResponse(bytes);
+      } else {
+        await bleCharacteristic.writeValue(bytes);
+      }
+      appendLog(els.bleLog, `TX ${bytesToHex(bytes)}    ${JSON.stringify(payloadText)}`);
+    }
+
+    async function sendSerial(bytes, payloadText) {
+      if (!serialWriter) {
+        throw new Error(t('UART0 未连接'));
+      }
+      await serialWriter.write(bytes);
+      appendLog(els.serialLog, `TX ${bytesToHex(bytes)}    ${JSON.stringify(payloadText)}`);
+    }
+
+    function clearLogs() {
+      events.length = 0;
+      dataPackets.length = 0;
+      dataValues.length = 0;
+      roastNodeValues.length = 0;
+      curveReset();
+      appState.lastDataPacket = null;
+      appState.lastRoastNodePacket = null;
+      simulateTick = 0;
+      els.eventTableBody.innerHTML = '';
+      els.bleEventList.innerHTML = `<div class="empty-stream">${escapeHtml(t('还没有收到蓝牙事件'))}</div>`;
+      els.serialEventList.innerHTML = `<div class="empty-stream">${escapeHtml(t('还没有收到串口事件'))}</div>`;
+      els.dataTableBody.innerHTML = '';
+      els.dataPacketCountText.textContent = unitText(0, '条');
+      els.dataValueList.innerHTML = `<div class="empty-stream">${escapeHtml(t('收到 Agtron 数值后会显示在这里'))}</div>`;
+      els.roastNodeValueList.innerHTML = `<div class="empty-stream">${escapeHtml(t('收到烘焙节点后会显示在这里'))}</div>`;
+      els.roastNodeCountText.textContent = unitText(0, '个');
+      els.bleLog.textContent = '';
+      els.serialLog.textContent = '';
+      bleLineBuffer = '';
+      serialLineBuffer = '';
+      updateStatus();
+    }
+
+    function exportCsv() {
+      const header = ['time', 'transport', 'seq', 'source', 'sourceName', 'eventId', 'eventName', 'param', 'detail', 'raw', 'hex'];
+      const lines = [header.join(',')];
+      for (const row of [...events].reverse()) {
+        const localizedRow = {
+          ...row,
+          time: formatTimeStamp(row.ts),
+          sourceName: t(row.sourceName),
+          eventName: t(row.eventName),
+          detail: buildEventDetail(row.parsed),
+        };
+        lines.push(header.map((key) => csvCell(localizedRow[key])).join(','));
+      }
+
+      const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `next-events-${new Date().toISOString().replaceAll(':', '-')}.csv`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function collectPacketExportData() {
+      const fixedHeader = ['time', 'transport', 'type', 'rawType', 'dataClass', 'summary', 'length'];
+      const metricKeys = [];
+      for (const row of dataPackets) {
+        for (const metric of row.metrics || []) {
+          const key = metric.key;
+          if (!key || fixedHeader.includes(key) || metricKeys.includes(key)) continue;
+          metricKeys.push(key);
+        }
+      }
+
+      const rows = [...dataPackets].reverse().map((row) => ({
+        time: formatTimeStamp(row.ts),
+        transport: row.transport,
+        type: t(row.type),
+        rawType: row.rawType,
+        dataClass: row.dataClass,
+        summary: t(row.summary),
+        length: row.length,
+        text: row.text,
+        hex: row.hex,
+        metrics: row.metrics || [],
+        metricMap: new Map((row.metrics || []).map((metric) => [metric.key, metric.value])),
+      }));
+
+      return { fixedHeader, metricKeys, rows };
+    }
+
+    function buildPacketsCsv(data) {
+      const header = [...data.fixedHeader, ...data.metricKeys, 'text', 'hex'];
+      const lines = [header.map(csvCell).join(',')];
+      for (const row of data.rows) {
+        const cells = [
+          row.time,
+          row.transport,
+          row.type,
+          row.rawType,
+          row.dataClass,
+          row.summary,
+          row.length,
+          ...data.metricKeys.map((key) => row.metricMap.get(key) ?? ''),
+          row.text,
+          row.hex,
+        ];
+        lines.push(cells.map(csvCell).join(','));
+      }
+      return `\uFEFF${lines.join('\r\n')}`;
+    }
+
+    function buildPacketsJson(data) {
+      return JSON.stringify({
+        app: 'RoastSee NEXT 上位机',
+        exportedAt: new Date().toISOString(),
+        language: currentLang,
+        packetCount: data.rows.length,
+        metricKeys: data.metricKeys,
+        packets: data.rows.map((row) => ({
+          time: row.time,
+          transport: row.transport,
+          type: row.type,
+          rawType: row.rawType,
+          dataClass: row.dataClass,
+          summary: row.summary,
+          length: row.length,
+          text: row.text,
+          hex: row.hex,
+          metrics: row.metrics.map((metric) => ({
+            key: metric.key,
+            label: t(metric.label),
+            value: t(metric.value),
+          })),
+        })),
+      }, null, 2);
+    }
+
+    function buildPacketsReadme(data) {
+      return [
+        'RoastSee NEXT 数据包导出说明',
+        '',
+        `导出时间：${new Date().toLocaleString('zh-CN', { hour12: false })}`,
+        `数据包数量：${data.rows.length}`,
+        '',
+        'packets.csv：表格数据，一行一个数据包，解析出的关键值按列展开，可直接用 Excel 打开。',
+        'packets.json：结构化数据，包含每个数据包的原始文本、原始 HEX 与全部关键值。',
+        '',
+        '字段说明：',
+        '  time        接收时间',
+        '  transport   接收通道（BLE / UART0）',
+        '  type        数据包类型',
+        '  rawType     原始类型标识',
+        '  dataClass   数据分类（agtron / roasting）',
+        '  summary     关键内容摘要',
+        '  length      数据包字节数',
+        '  text        设备返回的原始文本',
+        '  hex         设备返回的原始 HEX',
+        '',
+      ].join('\r\n');
+    }
+
+    let crc32Lookup = null;
+
+    function crc32(bytes) {
+      if (!crc32Lookup) {
+        crc32Lookup = new Uint32Array(256);
+        for (let i = 0; i < 256; i += 1) {
+          let value = i;
+          for (let bit = 0; bit < 8; bit += 1) {
+            value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+          }
+          crc32Lookup[i] = value >>> 0;
+        }
+      }
+
+      let crc = 0xFFFFFFFF;
+      for (let i = 0; i < bytes.length; i += 1) {
+        crc = crc32Lookup[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+      }
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function toDosDateTime(date) {
+      const year = Math.max(date.getFullYear(), 1980);
+      return {
+        time: (date.getHours() << 11) | (date.getMinutes() << 5) | (date.getSeconds() >> 1),
+        date: ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate(),
+      };
+    }
+
+    function buildZipBlob(entries) {
+      const stamp = toDosDateTime(new Date());
+      const localParts = [];
+      const centralParts = [];
+      let offset = 0;
+
+      entries.forEach((entry) => {
+        const nameBytes = textEncoder.encode(entry.name);
+        const dataBytes = typeof entry.data === 'string' ? textEncoder.encode(entry.data) : entry.data;
+        const crc = crc32(dataBytes);
+
+        const local = new Uint8Array(30 + nameBytes.length);
+        const localView = new DataView(local.buffer);
+        localView.setUint32(0, 0x04034B50, true);
+        localView.setUint16(4, 20, true);
+        localView.setUint16(6, 0x0800, true);
+        localView.setUint16(8, 0, true);
+        localView.setUint16(10, stamp.time, true);
+        localView.setUint16(12, stamp.date, true);
+        localView.setUint32(14, crc, true);
+        localView.setUint32(18, dataBytes.length, true);
+        localView.setUint32(22, dataBytes.length, true);
+        localView.setUint16(26, nameBytes.length, true);
+        localView.setUint16(28, 0, true);
+        local.set(nameBytes, 30);
+        localParts.push(local, dataBytes);
+
+        const central = new Uint8Array(46 + nameBytes.length);
+        const centralView = new DataView(central.buffer);
+        centralView.setUint32(0, 0x02014B50, true);
+        centralView.setUint16(4, 20, true);
+        centralView.setUint16(6, 20, true);
+        centralView.setUint16(8, 0x0800, true);
+        centralView.setUint16(10, 0, true);
+        centralView.setUint16(12, stamp.time, true);
+        centralView.setUint16(14, stamp.date, true);
+        centralView.setUint32(16, crc, true);
+        centralView.setUint32(20, dataBytes.length, true);
+        centralView.setUint32(24, dataBytes.length, true);
+        centralView.setUint16(28, nameBytes.length, true);
+        centralView.setUint16(30, 0, true);
+        centralView.setUint16(32, 0, true);
+        centralView.setUint16(34, 0, true);
+        centralView.setUint16(36, 0, true);
+        centralView.setUint32(38, 0, true);
+        centralView.setUint32(42, offset, true);
+        central.set(nameBytes, 46);
+        centralParts.push(central);
+
+        offset += local.length + dataBytes.length;
+      });
+
+      const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+      const end = new Uint8Array(22);
+      const endView = new DataView(end.buffer);
+      endView.setUint32(0, 0x06054B50, true);
+      endView.setUint16(4, 0, true);
+      endView.setUint16(6, 0, true);
+      endView.setUint16(8, entries.length, true);
+      endView.setUint16(10, entries.length, true);
+      endView.setUint32(12, centralSize, true);
+      endView.setUint32(16, offset, true);
+      endView.setUint16(20, 0, true);
+
+      return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportDataPackets(format = 'csv') {
+      if (!dataPackets.length) {
+        alert(t('没有可导出的数据包'));
+        return;
+      }
+
+      const data = collectPacketExportData();
+      const stamp = new Date().toISOString().replaceAll(':', '-');
+
+      if (format === 'json') {
+        downloadBlob(new Blob([buildPacketsJson(data)], { type: 'application/json;charset=utf-8' }), `next-packets-${stamp}.json`);
+        return;
+      }
+
+      if (format === 'zip') {
+        const zip = buildZipBlob([
+          { name: 'packets.csv', data: buildPacketsCsv(data) },
+          { name: 'packets.json', data: buildPacketsJson(data) },
+          { name: 'readme.txt', data: buildPacketsReadme(data) },
+        ]);
+        downloadBlob(zip, `next-packets-${stamp}.zip`);
+        return;
+      }
+
+      downloadBlob(new Blob([buildPacketsCsv(data)], { type: 'text/csv;charset=utf-8' }), `next-packets-${stamp}.csv`);
+    }
+    function csvCell(value) {
+      return `"${String(value ?? '').replaceAll('"', '""')}"`;
+    }
+
+    // ===================== 烘焙曲线 =====================
+
+    const CURVE_MAX_SAMPLES = 3600;
+    const CURVE_MIN_TIME_SPAN = 20;
+    const CURVE_MAX_TIME_SPAN = 7200;
+    const CURVE_COLORS = {
+      agtron: '#6b45dd',
+      stable: '#4457ff',
+      rate: '#00b479',
+      voice: 'rgba(148, 155, 168, 0.45)',
+      grid: '#ececf1',
+      gridSoft: '#f4f4f8',
+      text: '#747475',
+      empty: '#9aa0a6',
+    };
+    const CURVE_NODE_DEFS = [
+      { key: 'y_time', label: '黄点', color: '#d97706' },
+      { key: 'fc_time', label: '一爆', color: '#f71f1f' },
+      { key: 'sc_time', label: '二爆', color: '#8b1a1a' },
+      { key: 'd_time', label: '下豆', color: '#292a3a' },
+    ];
+
+    const roastCurve = {
+      samples: [],
+      nodes: [],
+      startedAt: null,
+      lastRecordNo: null,
+      lastSize: { width: 0, height: 0 },
+      lastPlot: null,
+      drag: null,
+      hover: null,
+      // null = 自动；有值 = 用户自定义量程（滚轮 / 拖动也会写进这里）
+      view: {
+        timeMin: null,
+        timeMax: null,
+        agtronMin: null,
+        agtronMax: null,
+        rateMin: null,
+        rateMax: null,
+        stepAgtron: null,
+        stepRate: null,
+        stepTime: null,
+      },
+    };
+
+    let curveDrawHandle = 0;
+
+    function curveElapsedSeconds() {
+      if (roastCurve.startedAt === null) return 0;
+      return Math.max(0, (performance.now() - roastCurve.startedAt) / 1000);
+    }
+
+    function curveReset() {
+      roastCurve.samples.length = 0;
+      roastCurve.nodes.length = 0;
+      roastCurve.startedAt = performance.now();
+      roastCurve.lastRecordNo = null;
+      roastCurve.hover = null;
+      curveResetView();
+      scheduleCurveDraw();
+    }
+
+    function curveRecordLiveFrame(parsed) {
+      if (!parsed) return;
+
+      // 蓝牙与串口可能同时上报同一帧，用设备记录序号去重（序号为 0 时不判断）
+      if (parsed.recordNo > 0) {
+        if (roastCurve.lastRecordNo === parsed.recordNo) return;
+        roastCurve.lastRecordNo = parsed.recordNo;
+      }
+
+      if (roastCurve.startedAt === null) roastCurve.startedAt = performance.now();
+      // 固件里的 time_yellow 是设备自带的烘焙秒表，和 Y_time / FC_time 等节点时间同一个时钟，
+      // 所以横轴优先用它；设备没在计时时退回上位机本地计时。
+      const deviceSeconds = Number.isFinite(parsed.yellowTime) ? parsed.yellowTime : 0;
+      const previous = roastCurve.samples.length ? roastCurve.samples[roastCurve.samples.length - 1].t : 0;
+      const seconds = Math.max(deviceSeconds > 0 ? deviceSeconds : curveElapsedSeconds(), previous);
+      roastCurve.samples.push({
+        t: seconds,
+        agtron: Number.isFinite(parsed.curveAgtron) ? parsed.curveAgtron : NaN,
+        stable: Number.isFinite(parsed.stableAgtron) ? parsed.stableAgtron : NaN,
+        rate: Number.isFinite(parsed.agtronRate) ? parsed.agtronRate : NaN,
+        voice: Number.isFinite(parsed.voice) ? parsed.voice : 0,
+      });
+      if (roastCurve.samples.length > CURVE_MAX_SAMPLES) {
+        roastCurve.samples.splice(0, roastCurve.samples.length - CURVE_MAX_SAMPLES);
+      }
+      scheduleCurveDraw();
+    }
+
+    function curveRecordNodes(metrics) {
+      if (!metrics?.length) return;
+      let changed = false;
+      CURVE_NODE_DEFS.forEach((def) => {
+        const metric = metrics.find((item) => String(item.key || '').toLowerCase() === def.key);
+        if (!metric) return;
+        const seconds = curveParseSeconds(metric.value);
+        if (seconds === null || seconds <= 0) return;
+        const existing = roastCurve.nodes.find((node) => node.key === def.key);
+        if (existing) {
+          if (existing.seconds !== seconds) {
+            existing.seconds = seconds;
+            changed = true;
+          }
+          return;
+        }
+        roastCurve.nodes.push({ key: def.key, label: def.label, color: def.color, seconds });
+        changed = true;
+      });
+      if (changed) scheduleCurveDraw();
+    }
+
+    function curveParseSeconds(value) {
+      const text = String(value ?? '').trim();
+      if (!text) return null;
+      const clock = text.match(/^(\d{1,3}):([0-5]\d)(?::([0-5]\d))?$/);
+      if (clock) {
+        const head = Number(clock[1]);
+        const second = Number(clock[2]);
+        return clock[3] === undefined ? head * 60 + second : head * 3600 + second * 60 + Number(clock[3]);
+      }
+      const plain = Number(text);
+      return Number.isFinite(plain) ? plain : null;
+    }
+
+    function scheduleCurveDraw() {
+      if (curveDrawHandle) return;
+      curveDrawHandle = window.requestAnimationFrame(() => {
+        curveDrawHandle = 0;
+        drawRoastCurve();
+      });
+    }
+
+    function curveNiceCeil(value) {
+      const steps = [30, 60, 90, 120, 180, 240, 300, 420, 600, 900, 1200, 1800, 2400, 3600];
+      for (const step of steps) {
+        if (value <= step) return step;
+      }
+      return Math.ceil(value / 600) * 600;
+    }
+
+    function curveAxisStep(min, max, targetCount) {
+      const span = Math.max(1e-6, max - min);
+      const raw = span / Math.max(1, targetCount);
+      const magnitude = 10 ** Math.floor(Math.log10(raw));
+      const candidates = [1, 2, 2.5, 5, 10];
+      for (const candidate of candidates) {
+        if (raw <= magnitude * candidate) return magnitude * candidate;
+      }
+      return magnitude * 10;
+    }
+
+    function curveTimeStep(xMax, targetCount = 6) {
+      // 从细到粗：缩放到几十秒时时间轴也要有刻度可用
+      const candidates = [1, 2, 5, 10, 15, 30, 60, 120, 180, 300, 600, 900];
+      const target = Math.max(2, targetCount);
+      const span = Math.max(1e-6, xMax);
+      for (const step of candidates) {
+        if (span / step <= target) return step;
+      }
+      return 1800;
+    }
+
+    function curveFormatClock(seconds) {
+      const total = Math.max(0, Math.round(seconds));
+      const mm = String(Math.floor(total / 60)).padStart(2, '0');
+      const ss = String(total % 60).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
+
+    // 时间刻度标签：步长小于 1 秒时补小数位（步长 0.5 → 00:05.5）
+    function curveFormatTimeLabel(seconds, step) {
+      const decimals = curveStepDecimals(step);
+      const factor = 10 ** decimals;
+      const total = Math.max(0, Math.round(seconds * factor) / factor);
+      const minute = Math.floor(total / 60);
+      const ss = (total - minute * 60).toFixed(decimals);
+      return `${String(minute).padStart(2, '0')}:${ss.padStart(decimals ? decimals + 3 : 2, '0')}`;
+    }
+
+    // 读数用：整数秒不补小数，真正的秒以下时间才保留一位
+    function curveFormatTimeValue(seconds) {
+      const total = Math.max(0, Number(seconds) || 0);
+      let decimals = 0;
+      if (Math.abs(total - Math.round(total)) >= 0.05) {
+        const tenths = Math.round(total * 10) / 10;
+        decimals = Math.abs(total - tenths) < 0.005 ? 1 : 2;
+      }
+      const factor = 10 ** decimals;
+      const value = Math.round(total * factor) / factor;
+      const minute = Math.floor(value / 60);
+      const ss = (value - minute * 60).toFixed(decimals);
+      return `${String(minute).padStart(2, '0')}:${ss.padStart(decimals ? decimals + 3 : 2, '0')}`;
+    }
+
+    function curveFormatAxis(value, step) {
+      const decimals = curveStepDecimals(step);
+      const factor = 10 ** decimals;
+      return (Math.round(value * factor) / factor).toFixed(decimals);
+    }
+
+    function curveStepDecimals(step) {
+      const abs = Math.abs(Number(step));
+      if (!Number.isFinite(abs) || abs <= 0) return 0;
+      // 步长 10 → 整数，2.5 → 一位，0.25 → 两位
+      for (let decimals = 0; decimals <= 3; decimals += 1) {
+        const scaled = abs * 10 ** decimals;
+        if (Math.abs(scaled - Math.round(scaled)) < 1e-9) return decimals;
+      }
+      return 3;
+    }
+
+    // ---- 视图：缩放 / 平移 / 自定义量程 ----
+
+    function curveAutoTimeWindow(samples) {
+      const elapsed = samples.length ? samples[samples.length - 1].t : 0;
+      return { min: 0, max: curveNiceCeil(Math.max(60, elapsed)) };
+    }
+
+    function curveComputeAgtronSpan(samples) {
+      const values = [];
+      samples.forEach((sample) => {
+        if (Number.isFinite(sample.agtron)) values.push(sample.agtron);
+        if (Number.isFinite(sample.stable)) values.push(sample.stable);
+      });
+      if (!values.length) return { min: 0, max: 160 };
+      const lo = Math.min(...values);
+      const hi = Math.max(...values);
+      const span = Math.max(20, hi - lo);
+      const min = Math.max(0, Math.floor((lo - span * 0.15) / 10) * 10);
+      let max = Math.ceil((hi + span * 0.15) / 10) * 10;
+      if (max - min < 40) max = min + 40;
+      return { min, max };
+    }
+
+    function curveComputeRateSpan(samples) {
+      const values = samples.map((sample) => sample.rate).filter((value) => Number.isFinite(value));
+      if (!values.length) return { min: 0, max: 10 };
+      const lo = Math.min(0, Math.min(...values));
+      const hi = Math.max(...values);
+      const span = Math.max(2, hi - lo);
+      const min = Math.floor((lo - span * 0.15) / 5) * 5;
+      let max = Math.ceil((hi + span * 0.15) / 5) * 5;
+      if (max - min < 10) max = min + 10;
+      return { min, max };
+    }
+
+    // 自动量程只看当前可见区间的采样点，所以缩放 / 平移时量程会跟着动。
+    function curveResolveView(samples) {
+      const auto = curveAutoTimeWindow(samples);
+      const view = roastCurve.view;
+      const timeMin = Number.isFinite(view.timeMin) ? view.timeMin : auto.min;
+      let timeMax = Number.isFinite(view.timeMax) ? view.timeMax : auto.max;
+      if (!(timeMax > timeMin)) timeMax = timeMin + CURVE_MIN_TIME_SPAN;
+
+      const visible = samples.filter((sample) => sample.t >= timeMin && sample.t <= timeMax);
+      const basis = visible.length ? visible : samples;
+      const agtronAuto = curveComputeAgtronSpan(basis);
+      const rateAuto = curveComputeRateSpan(basis);
+
+      const agtronMin = Number.isFinite(view.agtronMin) ? view.agtronMin : agtronAuto.min;
+      const rateMin = Number.isFinite(view.rateMin) ? view.rateMin : rateAuto.min;
+      let agtronMax = Number.isFinite(view.agtronMax) ? view.agtronMax : agtronAuto.max;
+      let rateMax = Number.isFinite(view.rateMax) ? view.rateMax : rateAuto.max;
+      if (!(agtronMax > agtronMin)) agtronMax = agtronMin + 10;
+      if (!(rateMax > rateMin)) rateMax = rateMin + 5;
+
+      // 步长（精度）为空或非法就是自动
+      const stepAgtron = Number.isFinite(view.stepAgtron) && view.stepAgtron > 0 ? view.stepAgtron : null;
+      const stepRate = Number.isFinite(view.stepRate) && view.stepRate > 0 ? view.stepRate : null;
+      const stepTime = Number.isFinite(view.stepTime) && view.stepTime > 0 ? view.stepTime : null;
+
+      return { timeMin, timeMax, agtronMin, agtronMax, rateMin, rateMax, stepAgtron, stepRate, stepTime };
+    }
+
+    function curveZoomWindow(timeMin, timeMax, anchorSeconds, factor) {
+      const span = Math.max(1e-6, timeMax - timeMin);
+      const nextSpan = Math.min(CURVE_MAX_TIME_SPAN, Math.max(CURVE_MIN_TIME_SPAN, span * factor));
+      const ratio = Math.min(Math.max((anchorSeconds - timeMin) / span, 0), 1);
+      const nextMin = Math.max(0, anchorSeconds - ratio * nextSpan);
+      return { min: nextMin, max: nextMin + nextSpan };
+    }
+
+    function curvePanWindow(timeMin, timeMax, deltaSeconds) {
+      const span = Math.max(1e-6, timeMax - timeMin);
+      const nextMin = Math.max(0, timeMin + deltaSeconds);
+      return { min: nextMin, max: nextMin + span };
+    }
+
+    function curveSetView(patch) {
+      Object.assign(roastCurve.view, patch);
+      curveSyncRangeInputs();
+      scheduleCurveDraw();
+    }
+
+    function curveResetView() {
+      roastCurve.view = {
+        timeMin: null,
+        timeMax: null,
+        agtronMin: null,
+        agtronMax: null,
+        rateMin: null,
+        rateMax: null,
+        stepAgtron: null,
+        stepRate: null,
+        stepTime: null,
+      };
+      curveSyncRangeInputs();
+      scheduleCurveDraw();
+    }
+
+    function curveReadNumber(element) {
+      if (!element) return null;
+      const text = String(element.value ?? '').trim();
+      if (!text) return null;
+      const value = Number(text);
+      return Number.isFinite(value) ? value : null;
+    }
+
+    // 校验提示直接写在输入框下方：空字符串就收起，不留空行
+    function setFieldError(element, message) {
+      if (!element) return;
+      const text = String(message || '');
+      element.textContent = text;
+      element.hidden = !text;
+    }
+
+    // 输入框只放"自定义量程"，留空即自动；自动值显示在下方的读数行里。
+    function curveSyncRangeInputs() {
+      const view = roastCurve.view;
+      const fill = (element, value) => {
+        if (!element) return;
+        element.value = Number.isFinite(value) ? String(Math.round(value * 10) / 10) : '';
+      };
+      // 刻度步长可能小于 0.1 秒（如 0.25），保留三位小数再写回，避免四舍五入后和实际步长对不上
+      const fillStep = (element, value) => {
+        if (!element) return;
+        element.value = Number.isFinite(value) ? String(Math.round(value * 1000) / 1000) : '';
+      };
+      fill(els.curveTimeMinInput, view.timeMin);
+      fill(els.curveTimeMaxInput, view.timeMax);
+      fillStep(els.curveTimeStepInput, view.stepTime);
+      fill(els.curveAgtronMinInput, view.agtronMin);
+      fill(els.curveAgtronMaxInput, view.agtronMax);
+      fill(els.curveRateMinInput, view.rateMin);
+      fill(els.curveRateMaxInput, view.rateMax);
+      fillStep(els.curveAgtronStepInput, view.stepAgtron);
+      fillStep(els.curveRateStepInput, view.stepRate);
+    }
+
+    function curveUpdateReadout(current, agtronStep, rateStep) {
+      if (!els.curveRangeReadout) return;
+      const text = tpl('时间 {time} ｜ Agtron {agtron} ｜ ROR {rate}', {
+        time: `${curveFormatTimeValue(current.timeMin)}–${curveFormatTimeValue(current.timeMax)}`,
+        agtron: `${curveFormatAxis(current.agtronMin, agtronStep)}–${curveFormatAxis(current.agtronMax, agtronStep)}`,
+        rate: `${curveFormatAxis(current.rateMin, rateStep)}–${curveFormatAxis(current.rateMax, rateStep)}`,
+      });
+      if (els.curveRangeReadout.textContent !== text) els.curveRangeReadout.textContent = text;
+    }
+
+    function curveApplyRangeInputs() {
+      const timeMin = curveReadNumber(els.curveTimeMinInput);
+      const timeMax = curveReadNumber(els.curveTimeMaxInput);
+      const agtronMin = curveReadNumber(els.curveAgtronMinInput);
+      const agtronMax = curveReadNumber(els.curveAgtronMaxInput);
+      const rateMin = curveReadNumber(els.curveRateMinInput);
+      const rateMax = curveReadNumber(els.curveRateMaxInput);
+      const stepAgtron = curveReadNumber(els.curveAgtronStepInput);
+      const stepRate = curveReadNumber(els.curveRateStepInput);
+      const stepTime = curveReadNumber(els.curveTimeStepInput);
+
+      // 校验失败不弹 alert：错误文字写在对应输入框下方（见 .field-error）
+      const checks = [
+        {
+          bad: timeMin !== null && timeMax !== null && timeMax - timeMin < CURVE_MIN_TIME_SPAN,
+          element: els.curveTimeMaxError,
+          message: tpl('时间量程至少 {seconds} 秒', { seconds: CURVE_MIN_TIME_SPAN }),
+        },
+        {
+          bad: agtronMin !== null && agtronMax !== null && agtronMax <= agtronMin,
+          element: els.curveAgtronMaxError,
+          message: t('Agtron 上限必须大于下限'),
+        },
+        {
+          bad: rateMin !== null && rateMax !== null && rateMax <= rateMin,
+          element: els.curveRateMaxError,
+          message: t('ROR 上限必须大于下限'),
+        },
+        { bad: stepTime !== null && stepTime <= 0, element: els.curveTimeStepError, message: t('刻度步长必须大于 0') },
+        { bad: stepAgtron !== null && stepAgtron <= 0, element: els.curveAgtronStepError, message: t('刻度步长必须大于 0') },
+        { bad: stepRate !== null && stepRate <= 0, element: els.curveRateStepError, message: t('刻度步长必须大于 0') },
+      ];
+      checks.forEach((check) => setFieldError(check.element, check.bad ? check.message : ''));
+      if (checks.some((check) => check.bad)) return;
+
+      roastCurve.view = {
+        timeMin: timeMin === null ? null : Math.max(0, timeMin),
+        timeMax,
+        agtronMin,
+        agtronMax,
+        rateMin,
+        rateMax,
+        stepAgtron,
+        stepRate,
+        stepTime,
+      };
+      curveSyncRangeInputs();
+      scheduleCurveDraw();
+    }
+
+    function curveFont(size) {
+      return `${size}px Outfit, Inter, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif`;
+    }
+
+    // 光标指向的采样点：按时间找最近的一条
+    function curveNearestSampleIndex(samples, seconds) {
+      let low = 0;
+      let high = samples.length - 1;
+      while (low < high) {
+        const mid = (low + high) >> 1;
+        if (samples[mid].t < seconds) low = mid + 1;
+        else high = mid;
+      }
+      if (low > 0 && Math.abs(samples[low - 1].t - seconds) <= Math.abs(samples[low].t - seconds)) {
+        return low - 1;
+      }
+      return low;
+    }
+
+    function curveHoverValue(value, digits) {
+      return Number.isFinite(value) ? value.toFixed(digits) : '--';
+    }
+
+    // 十字准线 + 数值读数：画在画布上，鼠标移出画布就消失
+    function drawCurveHover(ctx, plot, hover, canvasWidth, canvasHeight) {
+      const samples = roastCurve.samples;
+      if (!plot || !plot.width || !samples.length) return;
+      const plotBottom = plot.top + plot.height;
+      const timeSpan = Math.max(1e-6, plot.timeMax - plot.timeMin);
+      const agtronSpan = Math.max(1e-6, plot.agtronMax - plot.agtronMin);
+      const rateSpan = Math.max(1e-6, plot.rateMax - plot.rateMin);
+      const pointed = plot.timeMin + ((hover.x - plot.left) / plot.width) * timeSpan;
+      const sample = samples[curveNearestSampleIndex(samples, pointed)];
+      if (!sample) return;
+
+      const x = plot.left + ((sample.t - plot.timeMin) / timeSpan) * plot.width;
+      const yAgtron = (value) => plotBottom - ((value - plot.agtronMin) / agtronSpan) * plot.height;
+      const yRate = (value) => plotBottom - ((value - plot.rateMin) / rateSpan) * plot.height;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(plot.left, plot.top, plot.width, plot.height);
+      ctx.clip();
+
+      ctx.strokeStyle = 'rgba(41, 42, 58, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x, plot.top);
+      ctx.lineTo(x, plotBottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const marks = [
+        { value: sample.rate, y: yRate(sample.rate), color: CURVE_COLORS.rate },
+        { value: sample.stable, y: yAgtron(sample.stable), color: CURVE_COLORS.stable },
+        { value: sample.agtron, y: yAgtron(sample.agtron), color: CURVE_COLORS.agtron },
+      ];
+      marks.forEach((mark) => {
+        if (!Number.isFinite(mark.value)) return;
+        ctx.beginPath();
+        ctx.fillStyle = '#ffffff';
+        ctx.arc(x, mark.y, 4.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = mark.color;
+        ctx.arc(x, mark.y, 2.9, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+
+      const rows = [
+        { label: t('当前 Agtron'), value: curveHoverValue(sample.agtron, 1), color: CURVE_COLORS.agtron },
+        { label: t('稳定 Agtron'), value: curveHoverValue(sample.stable, 1), color: CURVE_COLORS.stable },
+        { label: t('Agtron ROR'), value: curveHoverValue(sample.rate, 2), color: CURVE_COLORS.rate },
+        { label: t('音频强度'), value: curveHoverValue(sample.voice, 0), color: '#8f939c' },
+      ];
+      const title = `${t('时间')} ${curveFormatTimeValue(sample.t)}`;
+      const font = 12;
+      const lineHeight = font + 7;
+      const padX = 10;
+      const padY = 8;
+      ctx.font = curveFont(font);
+      let contentWidth = ctx.measureText(title).width;
+      rows.forEach((row) => {
+        contentWidth = Math.max(contentWidth, ctx.measureText(row.label).width + 16 + ctx.measureText(row.value).width);
+      });
+      const boxWidth = Math.round(contentWidth + padX * 2);
+      const boxHeight = Math.round(padY * 2 + lineHeight * (rows.length + 1));
+
+      // 默认贴在准线右边，右边放不下就翻到左边，最后再夹回画布内
+      let boxLeft = x + 14;
+      if (boxLeft + boxWidth > canvasWidth - 6) boxLeft = x - 14 - boxWidth;
+      boxLeft = Math.min(Math.max(boxLeft, 6), Math.max(6, canvasWidth - boxWidth - 6));
+      let boxTop = hover.y - boxHeight / 2;
+      boxTop = Math.min(Math.max(boxTop, 6), Math.max(6, canvasHeight - boxHeight - 6));
+
+      ctx.save();
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(boxLeft, boxTop, boxWidth, boxHeight, 8);
+      else ctx.rect(boxLeft, boxTop, boxWidth, boxHeight);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(41, 42, 58, 0.16)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      let cursorY = boxTop + padY + lineHeight / 2;
+      ctx.fillStyle = '#292a3a';
+      ctx.font = curveFont(font + 1);
+      ctx.fillText(title, boxLeft + padX, cursorY);
+      cursorY += lineHeight;
+      ctx.font = curveFont(font);
+      rows.forEach((row) => {
+        ctx.fillStyle = '#8f939c';
+        ctx.textAlign = 'left';
+        ctx.fillText(row.label, boxLeft + padX, cursorY);
+        ctx.fillStyle = row.color;
+        ctx.textAlign = 'right';
+        ctx.fillText(row.value, boxLeft + boxWidth - padX, cursorY);
+        cursorY += lineHeight;
+      });
+      ctx.restore();
+    }
+
+    function drawRoastCurve() {
+      const canvas = els.roastCurveCanvas;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const width = Math.max(320, Math.round(rect.width));
+      const height = Math.max(180, Math.round(rect.height));
+      const ratio = window.devicePixelRatio || 1;
+      if (canvas.width !== Math.round(width * ratio) || canvas.height !== Math.round(height * ratio)) {
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+      }
+      roastCurve.lastSize = { width, height };
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const pad = { left: 48, right: 48, top: 16, bottom: 28 };
+      const plotLeft = pad.left;
+      const plotRight = width - pad.right;
+      const plotTop = pad.top;
+      const plotBottom = height - pad.bottom;
+      const plotWidth = plotRight - plotLeft;
+      const plotHeight = plotBottom - plotTop;
+      if (plotWidth < 40 || plotHeight < 40) return;
+
+      // 画布放大后刻度和字号跟着放大，避免出现大片空白
+      const labelFont = plotWidth >= 760 ? 12 : 11;
+      const timeTicks = Math.max(4, Math.min(12, Math.round(plotWidth / 110)));
+      const axisTicks = Math.max(3, Math.min(9, Math.round(plotHeight / 72)));
+
+      const samples = roastCurve.samples;
+      const view = curveResolveView(samples);
+      const timeSpan = Math.max(1e-6, view.timeMax - view.timeMin);
+      const agtronSpan = Math.max(1e-6, view.agtronMax - view.agtronMin);
+      const rateSpan = Math.max(1e-6, view.rateMax - view.rateMin);
+      const agtronStep = view.stepAgtron || curveAxisStep(view.agtronMin, view.agtronMax, axisTicks);
+      const rateStep = view.stepRate || curveAxisStep(view.rateMin, view.rateMax, axisTicks);
+
+      const xOf = (seconds) => plotLeft + ((seconds - view.timeMin) / timeSpan) * plotWidth;
+      const yAgtron = (value) => plotBottom - ((value - view.agtronMin) / agtronSpan) * plotHeight;
+      const yRate = (value) => plotBottom - ((value - view.rateMin) / rateSpan) * plotHeight;
+
+      roastCurve.lastPlot = {
+        left: plotLeft,
+        top: plotTop,
+        width: plotWidth,
+        height: plotHeight,
+        timeMin: view.timeMin,
+        timeMax: view.timeMax,
+        agtronMin: view.agtronMin,
+        agtronMax: view.agtronMax,
+        rateMin: view.rateMin,
+        rateMax: view.rateMax,
+      };
+      curveUpdateReadout(view, agtronStep, rateStep);
+
+      ctx.lineWidth = 1;
+      ctx.font = curveFont(labelFont);
+
+      ctx.strokeStyle = CURVE_COLORS.grid;
+      ctx.fillStyle = CURVE_COLORS.text;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      // 刻度对齐到步长的整数倍：自定义量程的边界通常不是整值，否则会出现 112.5 这种刻度
+      const agtronFirst = Math.ceil(view.agtronMin / agtronStep - 1e-9) * agtronStep;
+      for (let value = agtronFirst, tick = 0; value <= view.agtronMax + 1e-6 && tick < 200; value += agtronStep, tick += 1) {
+        const y = Math.round(yAgtron(value)) + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(plotLeft, y);
+        ctx.lineTo(plotRight, y);
+        ctx.stroke();
+        ctx.fillText(curveFormatAxis(value, agtronStep), plotLeft - 8, y);
+      }
+
+      ctx.fillStyle = CURVE_COLORS.rate;
+      ctx.textAlign = 'left';
+      const rateFirst = Math.ceil(view.rateMin / rateStep - 1e-9) * rateStep;
+      for (let value = rateFirst, tick = 0; value <= view.rateMax + 1e-6 && tick < 200; value += rateStep, tick += 1) {
+        ctx.fillText(curveFormatAxis(value, rateStep), plotRight + 8, Math.round(yRate(value)) + 0.5);
+      }
+
+      ctx.strokeStyle = CURVE_COLORS.gridSoft;
+      ctx.fillStyle = CURVE_COLORS.text;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const timeStep = view.stepTime || curveTimeStep(timeSpan, timeTicks);
+      const firstTick = Math.ceil(view.timeMin / timeStep) * timeStep;
+      // 网格线一律按步长画；标签放不下就按整数倍跳着显示，间距均匀又不会糊成一片
+      const tickPx = (plotWidth * timeStep) / timeSpan;
+      const widestLabel = ctx.measureText(curveFormatTimeLabel(view.timeMax, timeStep)).width + 4;
+      const labelStride = tickPx > 0 ? Math.max(1, Math.ceil(widestLabel / tickPx)) : 1;
+      for (let seconds = firstTick, tick = 0; seconds <= view.timeMax + 1e-6 && tick < 200; seconds += timeStep, tick += 1) {
+        const x = Math.round(xOf(seconds)) + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, plotTop);
+        ctx.lineTo(x, plotBottom);
+        ctx.stroke();
+        if (tick % labelStride === 0) ctx.fillText(curveFormatTimeLabel(seconds, timeStep), x, plotBottom + 8);
+      }
+
+      // 数据一律裁剪在绘图区内，缩放 / 平移时不会画到坐标轴上
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(plotLeft, plotTop, plotWidth, plotHeight);
+      ctx.clip();
+
+      if (samples.length) {
+        let voiceMax = 16;
+        samples.forEach((sample) => {
+          if (Number.isFinite(sample.voice)) voiceMax = Math.max(voiceMax, sample.voice);
+        });
+        voiceMax = curveNiceCeil(voiceMax);
+        const barHeight = Math.min(56, plotHeight * 0.22);
+        const barWidth = Math.max(1, Math.min(6, plotWidth / Math.max(1, samples.length)));
+        ctx.fillStyle = CURVE_COLORS.voice;
+        samples.forEach((sample) => {
+          const value = Number.isFinite(sample.voice) ? sample.voice : 0;
+          const barValue = Math.max(0, value / voiceMax) * barHeight;
+          if (barValue <= 0) return;
+          ctx.fillRect(xOf(sample.t) - barWidth / 2, plotBottom - barValue, barWidth, barValue);
+        });
+      }
+
+      const strokeSeries = (pick, yOf, color, lineWidth, dash) => {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.setLineDash(dash || []);
+        ctx.beginPath();
+        let open = false;
+        samples.forEach((sample) => {
+          const value = pick(sample);
+          if (!Number.isFinite(value)) {
+            open = false;
+            return;
+          }
+          const x = xOf(sample.t);
+          const y = yOf(value);
+          if (open) ctx.lineTo(x, y);
+          else {
+            ctx.moveTo(x, y);
+            open = true;
+          }
+        });
+        ctx.stroke();
+        ctx.restore();
+      };
+
+      strokeSeries((sample) => sample.rate, yRate, CURVE_COLORS.rate, 1.8, [6, 4]);
+      strokeSeries((sample) => sample.stable, yAgtron, CURVE_COLORS.stable, 1.6, [4, 3]);
+      strokeSeries((sample) => sample.agtron, yAgtron, CURVE_COLORS.agtron, 2.6, []);
+
+      ctx.font = curveFont(labelFont);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      // 先算标签位置：中英文标签长度差很多，按行打包避让，避免挤在一起重叠
+      const nodeMarks = [];
+      roastCurve.nodes.forEach((node) => {
+        if (!Number.isFinite(node.seconds)) return;
+        if (node.seconds < view.timeMin || node.seconds > view.timeMax) return;
+        const x = Math.round(xOf(node.seconds)) + 0.5;
+        nodeMarks.push({ node, x, label: t(node.label) });
+      });
+      nodeMarks.sort((left, right) => left.x - right.x);
+
+      const rowEnds = [];
+      nodeMarks.forEach((mark) => {
+        const textWidth = ctx.measureText(mark.label).width;
+        let labelLeft = Math.min(Math.max(mark.x - textWidth / 2, plotLeft), plotRight - textWidth);
+        let row = 0;
+        while (row < 3 && rowEnds[row] !== undefined && labelLeft < rowEnds[row] + 6) row += 1;
+        if (rowEnds[row] !== undefined && labelLeft < rowEnds[row] + 6) {
+          labelLeft = Math.min(rowEnds[row] + 6, plotRight - textWidth);
+        }
+        rowEnds[row] = labelLeft + textWidth;
+        mark.labelCenter = labelLeft + textWidth / 2;
+        mark.row = row;
+      });
+
+      nodeMarks.forEach((mark) => {
+        ctx.save();
+        ctx.strokeStyle = mark.node.color;
+        ctx.globalAlpha = 0.8;
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(mark.x, plotTop);
+        ctx.lineTo(mark.x, plotBottom);
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.fillStyle = mark.node.color;
+        ctx.fillText(mark.label, mark.labelCenter, plotTop + 2 + mark.row * (labelFont + 2));
+      });
+
+      let latest = null;
+      for (let index = samples.length - 1; index >= 0; index -= 1) {
+        if (Number.isFinite(samples[index].agtron)) {
+          latest = samples[index];
+          break;
+        }
+      }
+      if (latest) {
+        ctx.beginPath();
+        ctx.fillStyle = CURVE_COLORS.agtron;
+        ctx.arc(xOf(latest.t), yAgtron(latest.agtron), 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      const hover = roastCurve.hover;
+      if (hover && samples.length && hover.x >= plotLeft && hover.x <= plotRight) {
+        drawCurveHover(ctx, roastCurve.lastPlot, hover, width, height);
+      }
+
+      if (!samples.length) {
+        ctx.fillStyle = CURVE_COLORS.empty;
+        ctx.font = curveFont(13);
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+          t('等待实时数据：进入烘焙实时页并开始烘焙后，曲线会自动绘制'),
+          (plotLeft + plotRight) / 2,
+          (plotTop + plotBottom) / 2,
+        );
+      }
+    }
+
+    function curveExportStamp(date) {
+      const pad = (value) => String(value).padStart(2, '0');
+      return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+    }
+
+    // 导出当前看到的曲线：白底 + 标题 + 图例，画布本身是透明的，直接导出会没有背景
+    function curveBuildExportCanvas() {
+      const canvas = els.roastCurveCanvas;
+      if (!canvas || !canvas.width || !canvas.height) return null;
+      const rect = canvas.getBoundingClientRect();
+      const scale = Math.max(1, canvas.width / Math.max(1, rect.width || canvas.width));
+      const header = Math.round(46 * scale);
+      const footer = Math.round(32 * scale);
+      const out = document.createElement('canvas');
+      out.width = canvas.width;
+      out.height = canvas.height + header + footer;
+      const ctx = out.getContext('2d');
+      if (!ctx) return null;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, out.width, out.height);
+
+      ctx.fillStyle = '#292a3a';
+      ctx.font = curveFont(Math.round(15 * scale));
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${t('烘焙曲线')} · ${nowTime()}`, Math.round(12 * scale), Math.round(header / 2));
+
+      const legendY = out.height - Math.round(footer / 2);
+      let cursorX = Math.round(12 * scale);
+      ctx.font = curveFont(Math.round(12 * scale));
+      const legend = [
+        { color: CURVE_COLORS.agtron, label: t('当前 Agtron'), dash: [] },
+        { color: CURVE_COLORS.stable, label: t('稳定 Agtron'), dash: [4, 3] },
+        { color: CURVE_COLORS.rate, label: t('Agtron ROR'), dash: [6, 4] },
+      ];
+      legend.forEach((item) => {
+        ctx.save();
+        ctx.strokeStyle = item.color;
+        ctx.lineWidth = Math.max(1.5, 2 * scale);
+        ctx.setLineDash(item.dash.map((value) => value * scale));
+        ctx.beginPath();
+        ctx.moveTo(cursorX, legendY);
+        ctx.lineTo(cursorX + Math.round(22 * scale), legendY);
+        ctx.stroke();
+        ctx.restore();
+        cursorX += Math.round(28 * scale);
+        ctx.fillStyle = '#4b4c52';
+        ctx.fillText(item.label, cursorX, legendY);
+        cursorX += ctx.measureText(item.label).width + Math.round(18 * scale);
+      });
+      ctx.fillStyle = CURVE_COLORS.voice;
+      ctx.fillRect(cursorX, legendY - Math.round(5 * scale), Math.round(9 * scale), Math.round(10 * scale));
+      ctx.fillStyle = '#4b4c52';
+      ctx.fillText(t('音频强度'), cursorX + Math.round(14 * scale), legendY);
+
+      ctx.drawImage(canvas, 0, header);
+      return out;
+    }
+
+    // PNG 无损体积大，JPEG / WebP 有损体积小；导出画布已经铺了白底，三种格式都不会透
+    const CURVE_EXPORT_FORMATS = {
+      png: { mime: 'image/png', ext: 'png' },
+      jpeg: { mime: 'image/jpeg', ext: 'jpg', quality: 0.92 },
+      webp: { mime: 'image/webp', ext: 'webp', quality: 0.92 },
+    };
+
+    // 数据导出：CSV / TSV 是纯数值表，JSON 额外带节点信息
+    const CURVE_DATA_COLUMNS = ['time_s', 'curve_agtron', 'stable_agtron', 'agtron_ror', 'audio_level'];
+    const CURVE_DATA_MIME = {
+      csv: 'text/csv;charset=utf-8',
+      tsv: 'text/tab-separated-values;charset=utf-8',
+      json: 'application/json;charset=utf-8',
+    };
+
+    // 取到值就按位数四舍五入；取不到值留 NaN（CSV 里留空，JSON 里是 null）
+    function curveDataNumber(value, digits) {
+      if (!Number.isFinite(value)) return NaN;
+      const factor = 10 ** digits;
+      return Math.round(value * factor) / factor;
+    }
+
+    // 导出的数据和画面上那条曲线是同一份采样，不做任何插值或平滑
+    function curveCollectExportData() {
+      const samples = roastCurve.samples.map((sample) => [
+        curveDataNumber(sample.t, 1),
+        curveDataNumber(sample.agtron, 3),
+        curveDataNumber(sample.stable, 3),
+        curveDataNumber(sample.rate, 3),
+        Number.isFinite(sample.voice) ? Math.round(sample.voice) : NaN,
+      ]);
+      const nodes = roastCurve.nodes
+        .filter((node) => Number.isFinite(node.seconds))
+        .slice()
+        .sort((left, right) => left.seconds - right.seconds)
+        .map((node) => ({
+          key: node.key,
+          label: t(node.label),
+          time_s: curveDataNumber(node.seconds, 1),
+          clock: curveFormatClock(node.seconds),
+        }));
+      return { columns: CURVE_DATA_COLUMNS, samples, nodes };
+    }
+
+    function curveBuildExportText(key) {
+      const data = curveCollectExportData();
+      if (key === 'json') {
+        return JSON.stringify({
+          app: 'RoastSee NEXT 上位机',
+          exportedAt: new Date().toISOString(),
+          language: currentLang,
+          timeUnit: 's',
+          columns: data.columns,
+          nodes: data.nodes,
+          samples: data.samples,
+        }, null, 2);
+      }
+      // 表头 + 数据，纯 ASCII 数值，MATLAB / pandas / Origin / Excel / gnuplot 都能直接读
+      const separator = key === 'tsv' ? '\t' : ',';
+      const lines = [data.columns.join(separator)];
+      data.samples.forEach((row) => {
+        lines.push(row.map((value) => (Number.isFinite(value) ? String(value) : '')).join(separator));
+      });
+      return lines.join('\r\n');
+    }
+
+    function curveExportData(key) {
+      if (!roastCurve.samples.length) {
+        alert(t('还没有曲线数据可以导出'));
+        return;
+      }
+      const blob = new Blob([curveBuildExportText(key)], { type: CURVE_DATA_MIME[key] || 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `roast-curve-${curveExportStamp(new Date())}.${key}`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function curveExportImage(key) {
+      // 导出前先去掉十字准线，避免把鼠标停留位置画进图片
+      const hover = roastCurve.hover;
+      roastCurve.hover = null;
+      drawRoastCurve();
+      const out = curveBuildExportCanvas();
+      roastCurve.hover = hover;
+      scheduleCurveDraw();
+      if (!out) return;
+
+      const format = CURVE_EXPORT_FORMATS[key] || CURVE_EXPORT_FORMATS.png;
+      const dataUrl = format.quality ? out.toDataURL(format.mime, format.quality) : out.toDataURL(format.mime);
+      // 浏览器不支持该格式时会退回 PNG，这里按 MIME 判断并提示
+      if (!dataUrl.startsWith(`data:${format.mime}`)) {
+        alert(t('当前浏览器不支持该导出格式'));
+        return;
+      }
+      const link = document.createElement('a');
+      link.download = `roast-curve-${curveExportStamp(new Date())}.${format.ext}`;
+      link.href = dataUrl;
+      link.click();
+    }
+
+    // 工具栏按钮：选图片格式就导图片，选数据格式就导数据
+    function curveExport() {
+      const key = els.curveExportFormat?.value || 'png';
+      if (CURVE_DATA_MIME[key]) {
+        curveExportData(key);
+        return;
+      }
+      curveExportImage(key);
+    }
+
+    function curvePointerTime(clientX) {
+      const canvas = els.roastCurveCanvas;
+      const plot = roastCurve.lastPlot;
+      if (!canvas || !plot || !plot.width) return null;
+      const rect = canvas.getBoundingClientRect();
+      const ratio = (clientX - rect.left - plot.left) / plot.width;
+      return plot.timeMin + ratio * (plot.timeMax - plot.timeMin);
+    }
+
+    // 指针在绘图区里就记下位置（用来画读数），移出去就清掉
+    function curveUpdateHover(event) {
+      const canvas = els.roastCurveCanvas;
+      const plot = roastCurve.lastPlot;
+      if (!canvas || !plot || !plot.width) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const inside = x >= plot.left && x <= plot.left + plot.width && y >= plot.top && y <= plot.top + plot.height;
+      const next = inside ? { x, y } : null;
+      const current = roastCurve.hover;
+      if (!next && !current) return;
+      if (next && current && Math.abs(next.x - current.x) < 0.5 && Math.abs(next.y - current.y) < 0.5) return;
+      roastCurve.hover = next;
+      scheduleCurveDraw();
+    }
+
+    function onCurvePointerLeave() {
+      if (!roastCurve.hover) return;
+      roastCurve.hover = null;
+      scheduleCurveDraw();
+    }
+
+    // 滚轮：以鼠标所在时间为锚点缩放时间轴（量程由视图重新解析，自动跟随）
+    function onCurveWheel(event) {
+      const plot = roastCurve.lastPlot;
+      if (!plot) return;
+      event.preventDefault();
+      const anchor = curvePointerTime(event.clientX);
+      const factor = Math.min(2, Math.max(0.5, Math.exp((event.deltaY || 0) * 0.0016)));
+      const next = curveZoomWindow(
+        plot.timeMin,
+        plot.timeMax,
+        anchor === null ? (plot.timeMin + plot.timeMax) / 2 : anchor,
+        factor,
+      );
+      curveSetView({ timeMin: next.min, timeMax: next.max });
+    }
+
+    function onCurvePointerDown(event) {
+      const plot = roastCurve.lastPlot;
+      if (!plot || event.button !== 0) return;
+      roastCurve.hover = null;
+      roastCurve.drag = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        plotWidth: plot.width,
+        plotHeight: plot.height,
+        timeMin: plot.timeMin,
+        timeMax: plot.timeMax,
+        agtronMin: plot.agtronMin,
+        agtronMax: plot.agtronMax,
+        rateMin: plot.rateMin,
+        rateMax: plot.rateMax,
+      };
+      if (els.roastCurveCanvas.classList) els.roastCurveCanvas.classList.add('dragging');
+      if (els.roastCurveCanvas.setPointerCapture) {
+        try {
+          els.roastCurveCanvas.setPointerCapture(event.pointerId);
+        } catch (_) {
+          // 合成事件或指针已失效时忽略，拖动仍然按 drag 状态继续
+        }
+      }
+      event.preventDefault();
+    }
+
+    function onCurvePointerMove(event) {
+      const drag = roastCurve.drag;
+      if (!drag || event.pointerId !== drag.pointerId) {
+        curveUpdateHover(event);
+        return;
+      }
+      event.preventDefault();
+      if (roastCurve.hover) roastCurve.hover = null;
+      const deltaY = event.clientY - drag.y;
+      const pan = curvePanWindow(
+        drag.timeMin,
+        drag.timeMax,
+        (-(event.clientX - drag.x) / Math.max(1, drag.plotWidth)) * (drag.timeMax - drag.timeMin),
+      );
+      const patch = { timeMin: pan.min, timeMax: pan.max };
+      // 纵向拖动才改数值量程，纯横向拖动保持自动，避免误锁死量程
+      if (Math.abs(deltaY) > 2) {
+        const agtronShift = (deltaY / Math.max(1, drag.plotHeight)) * (drag.agtronMax - drag.agtronMin);
+        const rateShift = (deltaY / Math.max(1, drag.plotHeight)) * (drag.rateMax - drag.rateMin);
+        patch.agtronMin = drag.agtronMin + agtronShift;
+        patch.agtronMax = drag.agtronMax + agtronShift;
+        patch.rateMin = drag.rateMin + rateShift;
+        patch.rateMax = drag.rateMax + rateShift;
+      }
+      curveSetView(patch);
+    }
+
+    function onCurvePointerUp(event) {
+      const drag = roastCurve.drag;
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      roastCurve.drag = null;
+      if (els.roastCurveCanvas.classList) els.roastCurveCanvas.classList.remove('dragging');
+      if (els.roastCurveCanvas.releasePointerCapture) {
+        try {
+          els.roastCurveCanvas.releasePointerCapture(event.pointerId);
+        } catch (_) {
+          // 指针已经释放时忽略
+        }
+      }
+      curveUpdateHover(event);
+    }
+
+    function initRoastCurve() {
+      const canvas = els.roastCurveCanvas;
+      if (!canvas) return;
+      window.addEventListener('resize', scheduleCurveDraw);
+      canvas.addEventListener('wheel', onCurveWheel, { passive: false });
+      canvas.addEventListener('pointerdown', onCurvePointerDown);
+      canvas.addEventListener('pointermove', onCurvePointerMove);
+      canvas.addEventListener('pointerup', onCurvePointerUp);
+      canvas.addEventListener('pointercancel', onCurvePointerUp);
+      canvas.addEventListener('pointerleave', onCurvePointerLeave);
+      canvas.addEventListener('dblclick', curveResetView);
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver((entries) => {
+          const box = entries[0]?.contentRect;
+          if (!box) {
+            scheduleCurveDraw();
+            return;
+          }
+          const width = Math.round(box.width);
+          const height = Math.round(box.height);
+          if (width === roastCurve.lastSize.width && height === roastCurve.lastSize.height) return;
+          scheduleCurveDraw();
+        });
+        observer.observe(els.roastCurveCanvas);
+      }
+      curveSyncRangeInputs();
+      scheduleCurveDraw();
+    }
+
+    function bindActions() {
+      els.langToggleBtn.addEventListener('click', () => setLanguage(currentLang === 'en' ? 'zh' : 'en'));
+      els.bleConnectBtn.addEventListener('click', () => runUiTask(connectBle));
+      els.bleNotifyBtn.addEventListener('click', () => runUiTask(openBleNotify));
+      els.bleDisconnectBtn.addEventListener('click', () => runUiTask(disconnectBle));
+      els.serialConnectBtn.addEventListener('click', () => runUiTask(connectSerial));
+      els.serialDisconnectBtn.addEventListener('click', () => runUiTask(disconnectSerial));
+      els.clearBtn.addEventListener('click', clearLogs);
+      els.exportBtn.addEventListener('click', exportCsv);
+      els.exportPacketsBtn.addEventListener('click', () => exportDataPackets(els.exportPacketsFormat?.value || 'csv'));
+      els.allowUnsafeCheck.addEventListener('change', updateStatus);
+      els.eventViewModeSelect.addEventListener('change', updateEventViewMode);
+      els.eventTimePrecisionSelect.addEventListener('change', applyEventTimePrecision);
+      els.agtronPanelToggleBtn.addEventListener('click', toggleAgtronPanel);
+      els.roastNodeToggleBtn.addEventListener('click', toggleRoastNodePanel);
+      els.homeBackBtn.addEventListener('click', () => runUiTask(returnToHome));
+      els.curveResetBtn.addEventListener('click', () => curveReset());
+      els.curveRangeApplyBtn.addEventListener('click', curveApplyRangeInputs);
+      els.curveRangeAutoBtn.addEventListener('click', () => curveResetView());
+      // 改动任一输入就收起它下面那条错误提示
+      els.curveRangeApplyBtn.closest('details')?.addEventListener('input', (event) => {
+        setFieldError(event.target?.closest?.('.field')?.querySelector?.('.field-error'), '');
+      });
+      els.yellowInput.addEventListener('input', () => setFieldError(els.yellowInputError, ''));
+      els.curveExportBtn.addEventListener('click', curveExport);
+
+      document.querySelectorAll('[data-cmd]').forEach((button) => {
+        button.addEventListener('click', () => runUiTask(() => sendCommand(button.dataset.cmd)));
+      });
+
+      els.sendYellowBtn.addEventListener('click', () => {
+        const value = Number(els.yellowInput.value);
+        const bad = !Number.isInteger(value) || value < 1 || value > 50;
+        setFieldError(els.yellowInputError, bad ? t('黄点阈值必须是 1-50 的整数。') : '');
+        if (bad) return;
+        runUiTask(() => sendCommand(`NEXT:SETTING.YELLOW ${value}`));
+      });
+
+      els.sendCustomBtn.addEventListener('click', () => {
+        runUiTask(() => sendCommand(els.customCommandInput.value));
+      });
+
+      els.simulateOnceBtn.addEventListener('click', simulateOnce);
+      els.simulateLiveBtn.addEventListener('click', startSimulation);
+      els.stopSimulateBtn.addEventListener('click', stopSimulation);
+      els.stopSimulateBtn.disabled = true;
+    }
+
+    async function runUiTask(task) {
+      try {
+        await task();
+      } catch (error) {
+        console.error(error);
+        alert(error.message || String(error));
+      } finally {
+        updateStatus();
+      }
+    }
+
+    bindActions();
+    updateEventViewMode();
+    initRoastCurve();
+    if (currentLang === 'en') {
+      setLanguage('en');
+    } else {
+      updateStatus();
+    }
+  </script>
+</body>
+</html>

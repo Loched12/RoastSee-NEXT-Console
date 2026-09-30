@@ -1,0 +1,15 @@
+# 本地服务器脚本生成的日志与临时文件
+*.log
+__pycache__/
+*.pyc
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 本地截图与临时验证产物
+tmp/
+scratch/
