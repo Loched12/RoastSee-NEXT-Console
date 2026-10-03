@@ -32,6 +32,12 @@
 
 没有后端、没有安装包、没有构建流程：**全部代码就在一个 HTML 文件里**，改完刷新即生效。
 
+## 演示
+
+<video src="assets/roastsee-next-console-intro.mp4" controls muted loop playsinline width="100%"></video>
+
+> 上方不能播放时，[点这里下载这段 36 秒的功能演示片](assets/roastsee-next-console-intro.mp4)。
+
 ## 界面
 
 | 中文 | English |
@@ -47,6 +53,7 @@
   - 滚轮缩放、拖动平移、双击复位、**悬停读值**（光标指到哪个点就显示那一刻的四个数值）。
   - 量程与精度可自定义：时间 / Agtron / ROR 的上下限与刻度步长，留空即自动。
 - **导出**
+  - 实时数据：CSV / TSV / JSON，一行一帧设备上传的数值（当前 Agtron、稳定 Agtron、ROR、音频强度、距离、黄点时间与标志、设备记录号），做曲线分析就用这个。
   - 曲线图片：PNG / JPEG / WebP。
   - 曲线数据：CSV / TSV 是纯数值表（表头 + 数值），MATLAB、pandas、Origin、Excel、gnuplot 都能直接读；JSON 额外带节点信息。
   - 数据包列表：CSV / JSON / ZIP（ZIP 内含 `packets.csv`、`packets.json` 与说明文件，方便直接转发）。

@@ -97,6 +97,54 @@
       background: #343544;
     }
 
+    /* 头部下拉框：白底控件落在深色头部上很扎眼，这里跟着 ghost 按钮走 */
+    header select {
+      width: auto;
+      /* 够放下 JSON 不掉宽：CSV / TSV / JSON 之间切换时控件不跳 */
+      min-width: 72px;
+      /* 比按钮少 1px 上下内边距，正好和同一行 41px 的按钮齐平 */
+      padding: 8px 8px;
+      background: transparent;
+      border-color: #545561;
+      color: #fff;
+    }
+
+    header select:hover {
+      border-color: #fff;
+      background: #343544;
+    }
+
+    /* 展开后的候选项是白底弹层，文字要跟着变深，否则白字白底看不见 */
+    header select option {
+      background: #fff;
+      color: var(--text);
+    }
+
+    /* 格式 + 导出实时数据 拼成一个分体控件，外侧共用一个圆角 */
+    .export-format {
+      display: inline-flex;
+      align-items: center;
+      /* label 默认 13px，这里要跟同一行的按钮同字号，否则 select 会矮一截 */
+      font-size: inherit;
+    }
+
+    .export-format select {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+
+    .export-live-btn {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 22px;
+      background: #545561;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 330px minmax(0, 1fr) 360px;
@@ -1165,7 +1213,16 @@
       <div class="row">
         <button id="langToggleBtn" class="ghost" type="button">English</button>
         <button id="clearBtn" class="ghost">清空日志</button>
-        <button id="exportBtn" class="ghost">导出 CSV</button>
+        <span class="header-divider" aria-hidden="true"></span>
+        <button id="exportBtn" class="ghost">导出事件</button>
+        <label class="export-format" for="exportLiveFormat">
+          <select id="exportLiveFormat" aria-label="实时数据导出格式">
+            <option value="csv">CSV</option>
+            <option value="tsv">TSV</option>
+            <option value="json">JSON</option>
+          </select>
+        </label>
+        <button id="exportLiveBtn" class="ghost export-live-btn" type="button">导出实时数据</button>
       </div>
     </header>
 
@@ -1648,7 +1705,10 @@
       '发送端按同一套': 'Outgoing commands use the same',
       '命令下发到蓝牙、串口或两者同时下发。': 'command set for BLE, Serial, or both.',
       '清空日志': 'Clear Logs',
-      '导出 CSV': 'Export CSV',
+      '导出事件': 'Export Events',
+      '导出实时数据': 'Export Live Data',
+      '实时数据导出格式': 'Live data export format',
+      '还没有实时数据可以导出': 'No live data to export yet',
       '连接状态': 'Connection Status',
       'BLE 设备': 'BLE Device',
       '未选择': 'Not Selected',
@@ -2081,6 +2141,8 @@
       sendYellowBtn: $('sendYellowBtn'),
       clearBtn: $('clearBtn'),
       exportBtn: $('exportBtn'),
+      exportLiveBtn: $('exportLiveBtn'),
+      exportLiveFormat: $('exportLiveFormat'),
       exportPacketsBtn: $('exportPacketsBtn'),
       exportPacketsFormat: $('exportPacketsFormat'),
       eventViewModeSelect: $('eventViewModeSelect'),
@@ -2493,7 +2555,8 @@
         const parsed = parseRoastingLiveFrame(frame);
         if (parsed) {
           addDataPacket(transport, buildRoastingLivePacketInfo(frame, parsed));
-          curveRecordLiveFrame(parsed);
+          const liveSample = curveRecordLiveFrame(parsed);
+          if (liveSample) liveDataRecordFrame(parsed, liveSample.t);
           parsedAny = true;
         }
       }
@@ -3355,6 +3418,7 @@
       dataValues.length = 0;
       roastNodeValues.length = 0;
       curveReset();
+      liveDataReset();
       appState.lastDataPacket = null;
       appState.lastRoastNodePacket = null;
       simulateTick = 0;
@@ -3630,6 +3694,103 @@
       return `"${String(value ?? '').replaceAll('"', '""')}"`;
     }
 
+    // ===================== 实时数据导出 =====================
+    // 实时数据 = 设备上传的 AA55 二进制帧（Agtron / 稳定值 / ROR / 音频强度 / 距离 / 黄点 / 记录号），
+    // 和「事件」（命令回包与状态变化）分开记录、分开导出。
+    const LIVE_DATA_MAX_RECORDS = 20000;
+    const LIVE_DATA_COLUMNS = [
+      'time', 'time_s', 'curve_agtron', 'stable_agtron', 'agtron_ror', 'audio_level',
+      'distance', 'yellow_time', 'yellow_flag', 'record_no',
+    ];
+    const LIVE_DATA_MIME = {
+      csv: 'text/csv;charset=utf-8',
+      tsv: 'text/tab-separated-values;charset=utf-8',
+      json: 'application/json;charset=utf-8',
+    };
+
+    const liveData = { records: [] };
+
+    function liveDataReset() {
+      liveData.records.length = 0;
+    }
+
+    // 时间轴与曲线共用一份采样：curveRecordLiveFrame 记完再把那一帧交过来，
+    // 所以导出里的 time_s 和画面上那条曲线的横轴严格对齐。
+    function liveDataRecordFrame(parsed, seconds) {
+      if (!parsed) return;
+      const last = liveData.records[liveData.records.length - 1];
+      // 蓝牙与串口可能同时上报同一帧，按设备记录序号兜底去重（序号为 0 时不判断）
+      if (parsed.recordNo > 0 && last && last.recordNo === parsed.recordNo) return;
+      liveData.records.push({
+        ts: Date.now(),
+        seconds: Number.isFinite(seconds) ? seconds : 0,
+        curveAgtron: parsed.curveAgtron,
+        stableAgtron: parsed.stableAgtron,
+        agtronRate: parsed.agtronRate,
+        voice: parsed.voice,
+        distance: parsed.distance,
+        yellowTime: parsed.yellowTime,
+        yellowFlag: parsed.yellowFlag,
+        recordNo: parsed.recordNo,
+      });
+      if (liveData.records.length > LIVE_DATA_MAX_RECORDS) {
+        liveData.records.splice(0, liveData.records.length - LIVE_DATA_MAX_RECORDS);
+      }
+    }
+
+    // 与曲线导出同一套取整口径：取不到值留空（CSV/TSV）/ NaN（JSON）
+    function liveDataCollectExportData() {
+      const records = liveData.records.map((row) => [
+        formatTimeStamp(row.ts),
+        curveDataNumber(row.seconds, 1),
+        curveDataNumber(row.curveAgtron, 3),
+        curveDataNumber(row.stableAgtron, 3),
+        curveDataNumber(row.agtronRate, 3),
+        Number.isFinite(row.voice) ? Math.round(row.voice) : NaN,
+        Number.isFinite(row.distance) ? Math.round(row.distance) : NaN,
+        Number.isFinite(row.yellowTime) ? Math.round(row.yellowTime) : NaN,
+        Number.isFinite(row.yellowFlag) ? Math.round(row.yellowFlag) : NaN,
+        Number.isFinite(row.recordNo) ? Math.round(row.recordNo) : NaN,
+      ]);
+      return { columns: LIVE_DATA_COLUMNS, records };
+    }
+
+    function liveDataBuildExportText(key) {
+      const data = liveDataCollectExportData();
+      if (key === 'json') {
+        return JSON.stringify({
+          app: 'RoastSee NEXT 上位机',
+          exportedAt: new Date().toISOString(),
+          language: currentLang,
+          kind: 'live-data',
+          timeUnit: 's',
+          note: 'time 是上位机本地时间，time_s 是设备烘焙秒表，一行一帧实时数据。',
+          columns: data.columns,
+          records: data.records,
+        }, null, 2);
+      }
+      // 表头 + 数据；time 是 HH:MM:SS(.mmm)，不含逗号与制表符，所以 CSV / TSV 都不用引号
+      const separator = key === 'tsv' ? '\t' : ',';
+      const lines = [data.columns.join(separator)];
+      data.records.forEach((row) => {
+        lines.push(row.map((value) => {
+          if (typeof value === 'string') return value;
+          return Number.isFinite(value) ? String(value) : '';
+        }).join(separator));
+      });
+      return lines.join('\r\n');
+    }
+
+    function exportLiveData(format = 'csv') {
+      if (!liveData.records.length) {
+        alert(t('还没有实时数据可以导出'));
+        return;
+      }
+      const key = LIVE_DATA_MIME[format] ? format : 'csv';
+      const stamp = new Date().toISOString().replaceAll(':', '-');
+      downloadBlob(new Blob([liveDataBuildExportText(key)], { type: LIVE_DATA_MIME[key] }), `next-live-${stamp}.${key}`);
+    }
+
     // ===================== 烘焙曲线 =====================
 
     const CURVE_MAX_SAMPLES = 3600;
@@ -3692,12 +3853,13 @@
       scheduleCurveDraw();
     }
 
+    // 返回刚记下的那条采样（重复帧返回 null），实时数据导出直接复用它的时间轴
     function curveRecordLiveFrame(parsed) {
-      if (!parsed) return;
+      if (!parsed) return null;
 
       // 蓝牙与串口可能同时上报同一帧，用设备记录序号去重（序号为 0 时不判断）
       if (parsed.recordNo > 0) {
-        if (roastCurve.lastRecordNo === parsed.recordNo) return;
+        if (roastCurve.lastRecordNo === parsed.recordNo) return null;
         roastCurve.lastRecordNo = parsed.recordNo;
       }
 
@@ -3718,6 +3880,7 @@
         roastCurve.samples.splice(0, roastCurve.samples.length - CURVE_MAX_SAMPLES);
       }
       scheduleCurveDraw();
+      return roastCurve.samples[roastCurve.samples.length - 1];
     }
 
     function curveRecordNodes(metrics) {
@@ -4731,6 +4894,7 @@
       els.serialDisconnectBtn.addEventListener('click', () => runUiTask(disconnectSerial));
       els.clearBtn.addEventListener('click', clearLogs);
       els.exportBtn.addEventListener('click', exportCsv);
+      els.exportLiveBtn.addEventListener('click', () => exportLiveData(els.exportLiveFormat?.value || 'csv'));
       els.exportPacketsBtn.addEventListener('click', () => exportDataPackets(els.exportPacketsFormat?.value || 'csv'));
       els.allowUnsafeCheck.addEventListener('change', updateStatus);
       els.eventViewModeSelect.addEventListener('change', updateEventViewMode);

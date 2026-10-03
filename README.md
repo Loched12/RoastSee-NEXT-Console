@@ -32,6 +32,12 @@ Second Crack / Drop as vertical lines, and exports a whole roast as CSV / JSON /
 
 No backend, no installer, no build step: **all of the code lives in a single HTML file**, so edit-and-refresh is the whole workflow.
 
+## Demo
+
+<video src="assets/roastsee-next-console-intro-en.mp4" controls muted loop playsinline width="100%"></video>
+
+> If the player above does not work, [download the 36-second feature tour](assets/roastsee-next-console-intro-en.mp4).
+
 ## Interface
 
 | Chinese | English |
@@ -47,6 +53,7 @@ No backend, no installer, no build step: **all of the code lives in a single HTM
   - Wheel to zoom, drag to pan, double-click to reset, and **hover to read values** (the four readings at the point under the cursor).
   - Ranges and steps are configurable: time / Agtron / ROR limits and tick steps; leave a field empty for auto.
 - **Export**
+  - Live data: CSV / TSV / JSON, one row per uploaded frame (current Agtron, stable Agtron, ROR, audio level, distance, yellow-point time/flag, device record number). This is the one to use for curve analysis.
   - Curve images: PNG / JPEG / WebP.
   - Curve data: CSV / TSV are plain numeric tables (header + values) that MATLAB, pandas, Origin, Excel and gnuplot read directly; JSON also carries the marker data.
   - Packet list: CSV / JSON / ZIP (the ZIP holds `packets.csv`, `packets.json` and a short readme, ready to forward).
