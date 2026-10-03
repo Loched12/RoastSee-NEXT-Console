@@ -1170,6 +1170,21 @@
       background: #fbfbfd;
     }
 
+    /* 图表全屏：整张曲线卡片进全屏，工具栏里的退出按钮照样点得到；
+       画布尺寸一变 ResizeObserver 就会重画，所以不用额外接线 */
+    .curve-card:fullscreen {
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border-radius: 0;
+    }
+
+    .curve-card:fullscreen .curve-canvas-wrap {
+      flex: 1 1 0;
+      height: auto;
+      min-height: 0;
+    }
+
     .curve-hint {
       font-size: 12px;
       white-space: nowrap;
@@ -1306,7 +1321,7 @@
       </aside>
 
       <section class="stack">
-        <section class="card">
+        <section class="card curve-card" id="curveCard">
           <div class="toolbar curve-toolbar">
             <h2 style="margin: 0;">烘焙曲线</h2>
             <div class="row">
@@ -1322,6 +1337,7 @@
                 </select>
               </label>
               <button id="curveExportBtn" class="ghost" type="button">导出曲线</button>
+              <button id="curveFullscreenBtn" class="ghost" type="button">全屏</button>
               <button id="curveResetBtn" class="ghost" type="button">重置曲线</button>
             </div>
           </div>
@@ -1982,6 +1998,9 @@
       '应用量程': 'Apply Range',
       '恢复自动量程': 'Auto Range',
       '导出曲线': 'Export Curve',
+      '全屏': 'Fullscreen',
+      '退出全屏': 'Exit Fullscreen',
+      '当前浏览器不支持全屏': 'This browser cannot go fullscreen',
       'CSV（数据）': 'CSV (data)',
       'TSV（数据）': 'TSV (data)',
       'JSON（含节点）': 'JSON (with milestones)',
@@ -2097,6 +2116,11 @@
           element.setAttribute(attr, currentLang === 'en' ? t(original) : original);
         });
       });
+
+      // 全屏按钮的文案要跟全屏状态走，所以放在文本遍历之后兜底赋值
+      if (els.curveFullscreenBtn) {
+        els.curveFullscreenBtn.textContent = t(curveFullscreenActive() ? '退出全屏' : '全屏');
+      }
     }
 
     function setLanguage(lang) {
@@ -2188,6 +2212,8 @@
       curveRateStepError: $('curveRateStepError'),
       curveExportBtn: $('curveExportBtn'),
       curveExportFormat: $('curveExportFormat'),
+      curveCard: $('curveCard'),
+      curveFullscreenBtn: $('curveFullscreenBtn'),
     };
 
     function nowTime() {
@@ -2233,6 +2259,8 @@
       els.bleDisconnectBtn.disabled = !bleDevice?.gatt?.connected;
       els.serialConnectBtn.disabled = serialConnected;
       els.serialDisconnectBtn.disabled = !serialPort;
+      els.sendBleCheck.disabled = !bleConnected;
+      els.sendSerialCheck.disabled = !serialConnected;
       updateHomeBackAvailability();
       updateCommandAvailability();
     }
@@ -2620,6 +2648,12 @@
       return /Y_time|Y_agtron|FC_time|FC_agtron|SC_time|SC_agtron|D_time|D_agtron|\bAgtron\b|\bagtron\b/i.test(text || '');
     }
 
+    // 实时数据的 ASCII 版本，形如 "33.6,0,0.0,0.0,273,7,0,  1"（固件同时发它和等价的二进制帧）
+    function isRoastingLiveAsciiLine(line) {
+      const compact = String(line || '').replace(/\s+/g, '');
+      return /^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){7}$/.test(compact);
+    }
+
     function summarizeTextData(text) {
       return text.replace(/\s+/g, ' ').trim().slice(0, 220);
     }
@@ -2654,6 +2688,8 @@
     function addParsedLine(transport, line, rawHex) {
       const parsed = parseEventLine(line);
       if (!parsed) {
+        // ASCII 实时行与二进制帧内容等价，二进制那份已经进了曲线和实时数据表，这里静默忽略即可
+        if (isRoastingLiveAsciiLine(line)) return;
         if (!isAgtronDataText(line)) {
           appendLog(
             transport === 'BLE' ? els.bleLog : els.serialLog,
@@ -3272,6 +3308,7 @@
         serialPort = selectedPort;
         serialWriter = serialPort.writable.getWriter();
         serialReadActive = true;
+        els.sendSerialCheck.checked = true;
         appendLog(els.serialLog, t('UART0 已连接'));
         updateStatus();
         readSerialLoop();
@@ -3362,8 +3399,8 @@
       if (!payload) return;
 
       const sendTargets = [];
-      if (els.sendBleCheck.checked) sendTargets.push('BLE');
-      if (els.sendSerialCheck.checked) sendTargets.push('UART0');
+      if (els.sendBleCheck.checked && bleDevice?.gatt?.connected && bleCharacteristic) sendTargets.push('BLE');
+      if (els.sendSerialCheck.checked && serialPort && serialWriter) sendTargets.push('UART0');
 
       if (sendTargets.length === 0) {
         alert(t('请至少选择一个发送目标：蓝牙或串口。'));
@@ -3718,9 +3755,7 @@
     // 所以导出里的 time_s 和画面上那条曲线的横轴严格对齐。
     function liveDataRecordFrame(parsed, seconds) {
       if (!parsed) return;
-      const last = liveData.records[liveData.records.length - 1];
-      // 蓝牙与串口可能同时上报同一帧，按设备记录序号兜底去重（序号为 0 时不判断）
-      if (parsed.recordNo > 0 && last && last.recordNo === parsed.recordNo) return;
+    // 这里不判重：调用点只在曲线入口收下这一帧之后才进来，重复帧根本到不了这
       liveData.records.push({
         ts: Date.now(),
         seconds: Number.isFinite(seconds) ? seconds : 0,
@@ -3817,7 +3852,8 @@
       samples: [],
       nodes: [],
       startedAt: null,
-      lastRecordNo: null,
+    lastFrameKey: null,
+    lastFrameAt: 0,
       lastSize: { width: 0, height: 0 },
       lastPlot: null,
       drag: null,
@@ -3847,21 +3883,36 @@
       roastCurve.samples.length = 0;
       roastCurve.nodes.length = 0;
       roastCurve.startedAt = performance.now();
-      roastCurve.lastRecordNo = null;
+    roastCurve.lastFrameKey = null;
+    roastCurve.lastFrameAt = 0;
       roastCurve.hover = null;
       curveResetView();
       scheduleCurveDraw();
     }
 
-    // 返回刚记下的那条采样（重复帧返回 null），实时数据导出直接复用它的时间轴
+  // 同一帧可能从两路（蓝牙 / 串口）送到，几百毫秒内连数值都一模一样才算重复。
+  // 不能用设备记录序号判重：固件里的 cnt_record 是炉次编号，一炉之内一直是同一个数
+  //（laser_tasks.c 在开炉那一刻 +1），拿它当帧号会把整炉数据全丢掉。
+  const CURVE_DUPLICATE_WINDOW_MS = 200;
+
+  function curveFrameKey(parsed) {
+    return [
+      parsed.curveAgtron, parsed.voice, parsed.agtronRate, parsed.stableAgtron,
+      parsed.distance, parsed.yellowTime, parsed.yellowFlag, parsed.recordNo,
+    ].join('|');
+  }
+
+  // 返回刚记下的那条采样（重复帧返回 null），实时数据导出直接复用它的时间轴
     function curveRecordLiveFrame(parsed) {
       if (!parsed) return null;
 
-      // 蓝牙与串口可能同时上报同一帧，用设备记录序号去重（序号为 0 时不判断）
-      if (parsed.recordNo > 0) {
-        if (roastCurve.lastRecordNo === parsed.recordNo) return null;
-        roastCurve.lastRecordNo = parsed.recordNo;
-      }
+    const now = performance.now();
+    const key = curveFrameKey(parsed);
+    if (key === roastCurve.lastFrameKey && now - roastCurve.lastFrameAt < CURVE_DUPLICATE_WINDOW_MS) {
+      return null;
+    }
+    roastCurve.lastFrameKey = key;
+    roastCurve.lastFrameAt = now;
 
       if (roastCurve.startedAt === null) roastCurve.startedAt = performance.now();
       // 固件里的 time_yellow 是设备自带的烘焙秒表，和 Y_time / FC_time 等节点时间同一个时钟，
@@ -4856,9 +4907,26 @@
       curveUpdateHover(event);
     }
 
+    // 图表一键全屏：走浏览器原生 Fullscreen API，不引任何依赖。
+    // 全屏的是整张曲线卡片而不是画布，这样工具栏里的退出按钮还点得到
+    function curveFullscreenActive() {
+      return document.fullscreenElement === els.curveCard;
+    }
+
+    function toggleCurveFullscreen() {
+      const card = els.curveCard;
+      if (!card?.requestFullscreen) return;
+      if (curveFullscreenActive()) document.exitFullscreen();
+      else card.requestFullscreen();
+    }
+
     function initRoastCurve() {
       const canvas = els.roastCurveCanvas;
       if (!canvas) return;
+      if (!els.curveCard?.requestFullscreen && els.curveFullscreenBtn) {
+        els.curveFullscreenBtn.disabled = true;
+        els.curveFullscreenBtn.title = t('当前浏览器不支持全屏');
+      }
       window.addEventListener('resize', scheduleCurveDraw);
       canvas.addEventListener('wheel', onCurveWheel, { passive: false });
       canvas.addEventListener('pointerdown', onCurvePointerDown);
@@ -4903,6 +4971,9 @@
       els.roastNodeToggleBtn.addEventListener('click', toggleRoastNodePanel);
       els.homeBackBtn.addEventListener('click', () => runUiTask(returnToHome));
       els.curveResetBtn.addEventListener('click', () => curveReset());
+      els.curveFullscreenBtn?.addEventListener('click', toggleCurveFullscreen);
+      // Esc / 系统退出全屏后，把按钮文案翻回来
+      document.addEventListener('fullscreenchange', () => applyLanguage());
       els.curveRangeApplyBtn.addEventListener('click', curveApplyRangeInputs);
       els.curveRangeAutoBtn.addEventListener('click', () => curveResetView());
       // 改动任一输入就收起它下面那条错误提示

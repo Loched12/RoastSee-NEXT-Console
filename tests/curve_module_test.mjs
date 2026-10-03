@@ -152,20 +152,34 @@ check('坐标轴辅助函数取值正确', () => {
   assert.ok(h.api.curveAxisStep(0, 160, 4) > 0);
 });
 
-check('记录序号相同的重复帧只记一个采样点', () => {
+check('同一帧从两路重复送到，只记一个采样点', () => {
   h.api.curveReset();
   h.setNow(1000);
-  const frame = (recordNo) => ({ curveAgtron: 80, stableAgtron: 79, agtronRate: 5, voice: 20, recordNo });
-  h.api.curveRecordLiveFrame(frame(1));
-  h.api.curveRecordLiveFrame(frame(1));
-  h.api.curveRecordLiveFrame(frame(2));
-  assert.equal(h.api.roastCurve.samples.length, 2);
+  const frame = () => ({ curveAgtron: 80, stableAgtron: 79, agtronRate: 5, voice: 20, recordNo: 1 });
+  h.api.curveRecordLiveFrame(frame());
+  h.api.curveRecordLiveFrame(frame());
+  assert.equal(h.api.roastCurve.samples.length, 1);
 });
 
-check('记录序号为 0 时不做去重', () => {
+check('固件一炉里记录序号恒定时，每一帧都要记下来', () => {
   h.api.curveReset();
-  h.api.curveRecordLiveFrame({ curveAgtron: 80, recordNo: 0 });
-  h.api.curveRecordLiveFrame({ curveAgtron: 79, recordNo: 0 });
+  const frame = (tick) => ({
+    curveAgtron: 86 - tick, stableAgtron: 85 - tick, agtronRate: 7, voice: 20, recordNo: 1,
+  });
+  for (let tick = 1; tick <= 5; tick += 1) {
+    h.setNow(tick * 1200);
+    h.api.curveRecordLiveFrame(frame(tick));
+  }
+  assert.equal(h.api.roastCurve.samples.length, 5);
+});
+
+check('数值一样但隔得够远的两帧不算重复', () => {
+  h.api.curveReset();
+  const frame = () => ({ curveAgtron: 80, stableAgtron: 79, agtronRate: 5, voice: 20, recordNo: 1 });
+  h.setNow(0);
+  h.api.curveRecordLiveFrame(frame());
+  h.setNow(1200);
+  h.api.curveRecordLiveFrame(frame());
   assert.equal(h.api.roastCurve.samples.length, 2);
 });
 
@@ -718,6 +732,17 @@ check('数据导出：JSON 带节点，缺数据是 null', () => {
   assert.equal(parsed.nodes[0].key, 'y_time');
   assert.equal(parsed.nodes[0].time_s, 20);
   assert.equal(parsed.nodes[0].clock, '00:20');
+});
+
+// ---- 图表全屏 ----
+check('全屏按钮：入口、样式、接线与中英文文案都在', () => {
+  assert.ok(html.includes('<button id="curveFullscreenBtn" class="ghost" type="button">全屏</button>'), '工具栏里有全屏按钮');
+  assert.ok(html.includes('<section class="card curve-card" id="curveCard">'), '曲线卡片有 id 可作全屏元素');
+  assert.ok(html.includes('.curve-card:fullscreen {'), '全屏时曲线卡片铺满整屏');
+  assert.ok(html.includes('.curve-card:fullscreen .curve-canvas-wrap {'), '全屏时画布撑满剩余高度');
+  assert.ok(html.includes('document.fullscreenElement === els.curveCard'), '全屏判断认的是整张卡片');
+  assert.ok(html.includes("els.curveFullscreenBtn?.addEventListener('click', toggleCurveFullscreen)"), '按钮已接线');
+  assert.ok(html.includes("'全屏': 'Fullscreen'") && html.includes("'退出全屏': 'Exit Fullscreen'"), '英文界面有对应文案');
 });
 
 if (failures.length) {

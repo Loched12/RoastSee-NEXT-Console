@@ -42,6 +42,7 @@ const wanted = [
   'isAsciiTextByte',
   'calcCrc16Modbus', 'parseRoastingLiveFrame', 'getBinaryBuffer', 'setBinaryBuffer',
   'drainRoastingLiveFrames', 'handleIncomingBytes', 'isAgtronDataText',
+  'isRoastingLiveAsciiLine', 'classifyTextPacket', 'drainLineBuffer', 'addParsedLine',
 ];
 const source = wanted.map((name) => extractFunction(html, name)).join('\n\n');
 
@@ -62,10 +63,12 @@ function buildRoastingLivePacketInfo(frame, parsed) { return { frameLength: fram
 function curveRecordLiveFrame(parsed) { packets.push({ curve: parsed }); }
 function parseIncomingText(transport, text, rawHex) { receivedText.push({ transport, text, rawHex }); }
 function addDataPacketText() {}
+function parseEventLine() { return null; }
+function buildDataPacketInfo(type, len, text, hex) { return { type, length: len, text, hex }; }
 `;
 const factory = new Function(
   'receivedText, packets, logs',
-  stubPreamble + '\n' + source + '\nreturn { handleIncomingBytes, drainRoastingLiveFrames, calcCrc16Modbus, getBinaryBuffer };',
+  stubPreamble + '\n' + source + '\nreturn { handleIncomingBytes, drainRoastingLiveFrames, calcCrc16Modbus, getBinaryBuffer, drainLineBuffer, addParsedLine, isRoastingLiveAsciiLine };',
 );
 const api = factory(receivedText, packets, logs);
 
@@ -189,6 +192,38 @@ check('帧 4：同一块里两个连续整帧都要解析出来', () => {
   api.handleIncomingBytes('UART0', chunk);
   const curveNos = packets.filter((p) => p.curve).map((p) => p.curve.recordNo);
   assert.deepEqual(curveNos, [41, 42], '两帧未按序解析：' + JSON.stringify(curveNos));
+});
+
+check('文本 6：ASCII 实时行（含 \\r\\r\\n）静默忽略，不刷 SKIP 日志', () => {
+  receivedText.length = 0; packets.length = 0; logs.length = 0;
+  const buffer = api.drainLineBuffer('UART0', '33.6,0,0.0,0.0,273,7,0,  1\r\r\n', '');
+  assert.equal(buffer, '', '行没被消费掉：' + JSON.stringify(buffer));
+  assert.equal(packets.length, 0, 'ASCII 实时行不该再生成数据包');
+  assert.equal(logs.length, 0, '不该刷日志：' + JSON.stringify(logs));
+});
+
+check('文本 7：ASCII 实时行被拆成两段也要能识别', () => {
+  receivedText.length = 0; packets.length = 0; logs.length = 0;
+  let buffer = api.drainLineBuffer('UART0', '33.5,0,0.0,', '');
+  buffer = api.drainLineBuffer('UART0', buffer + '0.0,274,14,0,  1\r\r\n', '');
+  assert.equal(buffer, '', '拆段后没识别出来：' + JSON.stringify(buffer));
+  assert.equal(packets.length, 0, '不该生成数据包');
+  assert.equal(logs.length, 0, '不该刷日志：' + JSON.stringify(logs));
+});
+
+check('文本 8：烘焙节点行照常进数据包', () => {
+  receivedText.length = 0; packets.length = 0; logs.length = 0;
+  const line = 'Y_time:0, Y_agtron:0.0, Y_ROR:0.0, FC_time:0, FC_agtron:0.0, FC_ROR:0.0, SC_time:0, SC_agtron:0.0, SC_ROR:0.0, D_time:18, D_agtron:33.5, D_ROR:0.0 \r\n';
+  api.drainLineBuffer('UART0', line, '');
+  assert.equal(packets.length, 1, '节点行应生成 1 个数据包：' + JSON.stringify(packets));
+  assert.equal(packets[0].info.type, 'Agtron 文本数据', '类型不对：' + JSON.stringify(packets[0]));
+});
+
+check('文本 9：普通日志行仍然只走文本路径', () => {
+  receivedText.length = 0; packets.length = 0; logs.length = 0;
+  api.drainLineBuffer('UART0', 'I (10200) setting_task: Battery charge is full \r\n', '');
+  assert.equal(packets.length, 0, '日志行不该进数据包');
+  assert.equal(logs.filter((m) => String(m).includes('SKIP')).length, 1, '非 Agtron 文本应保持原有 SKIP 提示：' + JSON.stringify(logs));
 });
 
 console.log(failures.length === 0 ? '\n全部通过' : '\n失败 ' + failures.length + ' 项：' + failures.join(' / '));

@@ -52,6 +52,7 @@ No backend, no installer, no build step: **all of the code lives in a single HTM
   - Yellow / First Crack / Second Crack / Drop are drawn automatically as vertical markers.
   - Wheel to zoom, drag to pan, double-click to reset, and **hover to read values** (the four readings at the point under the cursor).
   - Ranges and steps are configurable: time / Agtron / ROR limits and tick steps; leave a field empty for auto.
+  - One-click fullscreen for the chart (`Esc` or the same button to exit).
 - **Export**
   - Live data: CSV / TSV / JSON, one row per uploaded frame (current Agtron, stable Agtron, ROR, audio level, distance, yellow-point time/flag, device record number). This is the one to use for curve analysis.
   - Curve images: PNG / JPEG / WebP.

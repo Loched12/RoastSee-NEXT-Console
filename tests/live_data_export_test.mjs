@@ -115,20 +115,12 @@ check('记录：一帧一条，字段按列顺序落库', () => {
   assert.deepEqual(data.records[0].slice(1), [63.4, 86.123, 85.5, -0.753, 43, 180, 63, 1, 101]);
 });
 
-check('记录：相邻重复记录序号被去重，序号变化后继续记录', () => {
+// 固件里 cnt_record 是炉次编号，一炉之内不变，所以这里不能按序号判重（判重在曲线入口）
+check('记录：序号相同但数值不同的帧照样各占一行', () => {
   const h = buildHarness();
   const { api } = h;
   api.liveDataRecordFrame(frame({ recordNo: 7 }), 1);
-  api.liveDataRecordFrame(frame({ recordNo: 7 }), 1);
-  api.liveDataRecordFrame(frame({ recordNo: 8 }), 2);
-  assert.equal(api.liveData.records.length, 2);
-});
-
-check('记录：序号为 0（设备没给序号）时不做去重', () => {
-  const h = buildHarness();
-  const { api } = h;
-  api.liveDataRecordFrame(frame({ recordNo: 0 }), 1);
-  api.liveDataRecordFrame(frame({ recordNo: 0 }), 2);
+  api.liveDataRecordFrame(frame({ recordNo: 7, curveAgtron: 87 }), 2);
   assert.equal(api.liveData.records.length, 2);
 });
 
