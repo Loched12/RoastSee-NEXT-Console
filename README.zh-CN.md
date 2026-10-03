@@ -32,11 +32,6 @@
 
 没有后端、没有安装包、没有构建流程：**全部代码就在一个 HTML 文件里**，改完刷新即生效。
 
-## 演示
-
-<video src="assets/roastsee-next-console-intro.mp4" controls muted loop playsinline width="100%"></video>
-
-> 上方不能播放时，[点这里下载这段 36 秒的功能演示片](assets/roastsee-next-console-intro.mp4)。
 
 ## 界面
 
