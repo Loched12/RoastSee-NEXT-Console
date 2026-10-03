@@ -32,11 +32,6 @@ Second Crack / Drop as vertical lines, and exports a whole roast as CSV / JSON /
 
 No backend, no installer, no build step: **all of the code lives in a single HTML file**, so edit-and-refresh is the whole workflow.
 
-## Demo
-
-<video src="assets/roastsee-next-console-intro-en.mp4" controls muted loop playsinline width="100%"></video>
-
-> If the player above does not work, [download the 36-second feature tour](assets/roastsee-next-console-intro-en.mp4).
 
 ## Interface
 
