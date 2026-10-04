@@ -3831,6 +3831,8 @@
     const CURVE_MAX_SAMPLES = 3600;
     const CURVE_MIN_TIME_SPAN = 20;
     const CURVE_MAX_TIME_SPAN = 7200;
+    // 自动量程的最小跨度：待机 / 空炉时读数几乎不变，跨度放宽曲线就会一直贴在画布边上
+    const CURVE_MIN_AGTRON_SPAN = 10;
     const CURVE_COLORS = {
       agtron: '#6b45dd',
       stable: '#4457ff',
@@ -3902,6 +3904,13 @@
     ].join('|');
   }
 
+  // 固件把「没有有效读数」发成 0（laser_tasks.c 里读数 <=0 视为无效、>99.99 也会被清零），
+  // 这种占位值不是测量点：留着会把自动量程一路拖到 0，曲线贴在一边就不像自适应了。
+  function curveAgtronReading(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : NaN;
+  }
+
   // 返回刚记下的那条采样（重复帧返回 null），实时数据导出直接复用它的时间轴
     function curveRecordLiveFrame(parsed) {
       if (!parsed) return null;
@@ -3922,8 +3931,8 @@
       const seconds = Math.max(deviceSeconds > 0 ? deviceSeconds : curveElapsedSeconds(), previous);
       roastCurve.samples.push({
         t: seconds,
-        agtron: Number.isFinite(parsed.curveAgtron) ? parsed.curveAgtron : NaN,
-        stable: Number.isFinite(parsed.stableAgtron) ? parsed.stableAgtron : NaN,
+        agtron: curveAgtronReading(parsed.curveAgtron),
+        stable: curveAgtronReading(parsed.stableAgtron),
         rate: Number.isFinite(parsed.agtronRate) ? parsed.agtronRate : NaN,
         voice: Number.isFinite(parsed.voice) ? parsed.voice : 0,
       });
@@ -4075,7 +4084,7 @@
       const span = Math.max(20, hi - lo);
       const min = Math.max(0, Math.floor((lo - span * 0.15) / 10) * 10);
       let max = Math.ceil((hi + span * 0.15) / 10) * 10;
-      if (max - min < 40) max = min + 40;
+      if (max - min < CURVE_MIN_AGTRON_SPAN) max = min + CURVE_MIN_AGTRON_SPAN;
       return { min, max };
     }
 
@@ -4880,8 +4889,9 @@
         (-(event.clientX - drag.x) / Math.max(1, drag.plotWidth)) * (drag.timeMax - drag.timeMin),
       );
       const patch = { timeMin: pan.min, timeMax: pan.max };
-      // 纵向拖动才改数值量程，纯横向拖动保持自动，避免误锁死量程
-      if (Math.abs(deltaY) > 2) {
+      // 明显纵向拖动才改数值量程：原来 2px 抖动就触发，横向平移时手一抖量程就被悄悄切成手动、
+      // Y 轴从此不再自适应，所以既抬高阈值也要求纵向是主导方向
+      if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(event.clientX - drag.x)) {
         const agtronShift = (deltaY / Math.max(1, drag.plotHeight)) * (drag.agtronMax - drag.agtronMin);
         const rateShift = (deltaY / Math.max(1, drag.plotHeight)) * (drag.rateMax - drag.rateMin);
         patch.agtronMin = drag.agtronMin + agtronShift;

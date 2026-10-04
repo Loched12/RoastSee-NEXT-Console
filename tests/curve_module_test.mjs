@@ -318,7 +318,7 @@ check('自定义量程覆盖自动量程，恢复自动后清空', () => {
   }
   h.api.curveResetView();
   const auto = h.api.curveResolveView(h.api.roastCurve.samples);
-  assert.ok(auto.agtronMax - auto.agtronMin >= 40, '自动量程至少 40 宽');
+  assert.ok(auto.agtronMax - auto.agtronMin >= 10, '自动量程至少 10 宽');
 
   h.api.roastCurve.view.agtronMin = 10;
   h.api.roastCurve.view.agtronMax = 20;
@@ -376,6 +376,21 @@ check('拖动：横向平移时间，且不会锁死数值量程', () => {
   assert.equal(h.api.roastCurve.view.rateMin, null, '纯横向拖动不应写入 ROR 量程');
   h.api.onCurvePointerUp({ pointerId: 1 });
   assert.equal(h.api.roastCurve.drag, null, '抬手后应结束拖动');
+});
+
+check('拖动：横向平移时的手抖不会把数值量程锁死', () => {
+  h.api.curveResetView();
+  h.api.roastCurve.lastPlot = {
+    left: 48, top: 16, width: 500, height: 300,
+    timeMin: 100, timeMax: 200, agtronMin: 0, agtronMax: 100, rateMin: -5, rateMax: 5,
+  };
+  const swallow = { preventDefault() {} };
+  h.api.onCurvePointerDown({ pointerId: 3, button: 0, clientX: 300, clientY: 200, ...swallow });
+  h.api.onCurvePointerMove({ pointerId: 3, clientX: 400, clientY: 205, ...swallow });
+  assert.equal(h.api.roastCurve.view.timeMin, 80, '时间照样平移');
+  assert.equal(h.api.roastCurve.view.agtronMin, null, '几像素手抖不该把 Agtron 量程切成手动');
+  assert.equal(h.api.roastCurve.view.rateMin, null, 'ROR 量程同理');
+  h.api.onCurvePointerUp({ pointerId: 3 });
 });
 
 check('拖动：纵向拖动把数值量程切成自定义并按比例平移', () => {
@@ -691,6 +706,26 @@ check('表单校验：提示内联在字段下方，改回合法值就收起', (
   assert.equal(h.els.curveTimeMaxError.hidden, true, '合法后收起提示');
   assert.equal(h.els.curveTimeMaxError.textContent, '');
   assert.equal(h.api.roastCurve.view.timeMax, 60, '合法值要写进 view');
+});
+
+// 真机日志（2026-10-03）：待机时固件把「没有有效读数」发成 0（laser_tasks.c 里读数 <=0 视为无效），
+// 这种占位值不能参与自动量程，否则 Agtron 轴会被一路拖到 0、曲线贴在画布顶上。
+check('自动量程：占位 0 不算读数，量程跟着有效值走', () => {
+  h.api.curveReset();
+  h.setNow(0);
+  for (let index = 1; index <= 6; index += 1) {
+    h.setNow(index * 1000);
+    h.api.curveRecordLiveFrame({
+      curveAgtron: 33.5, stableAgtron: 0, agtronRate: 0, voice: 0, recordNo: 1, yellowTime: index,
+    });
+  }
+  const samples = h.api.roastCurve.samples;
+  assert.equal(samples.length, 6);
+  assert.ok(Number.isNaN(samples[0].stable), '占位 0 要按「无读数」记');
+  h.api.curveResetView();
+  const view = h.api.curveResolveView(samples);
+  assert.ok(view.agtronMin >= 30, '量程下限应贴着 33.5，不该被 0 拖下去');
+  assert.ok(view.agtronMax - view.agtronMin >= 10, '量程不应退化成零宽');
 });
 // ---- 数据导出 ----
 
